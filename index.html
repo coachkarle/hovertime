@@ -586,7 +586,15 @@ html[data-theme="rain"] .brand-tag { font-family: var(--rn-font); font-weight: 4
   flex: 1 1 calc(20% - 2px); min-width: 0; appearance: none; border: 0; cursor: pointer; background: transparent; color: var(--soft);
   font-size: 13px; font-weight: 700; line-height: 1; border-radius: 999px; padding: 8px 3px; white-space: nowrap;
 }
-@media (max-width: 480px) { .mode-pick { border-radius: 18px; } .mode-pick .seg { flex-basis: calc(33.33% - 2px); } }   /* phones: three to a row (after the base rule, so it wins) */
+@media (max-width: 480px) {                                         /* phones: one swipeable row (after the base rule, so it wins) */
+  .mode-pick {
+    flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+  }
+  .mode-pick.at-end { -webkit-mask-image: none; mask-image: none; }
+  .mode-pick::-webkit-scrollbar { display: none; }
+  .mode-pick .seg { flex: 0 0 auto; padding: 9px 14px; scroll-snap-align: center; }
+}
 .mode-pick .seg:hover { background: var(--btn); color: var(--btn-ink); }
 .mode-pick .seg[aria-checked="true"] { background: var(--primary); color: var(--on-primary); }
 #btnSettings { width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border-radius: 50%; }
@@ -597,6 +605,10 @@ html[data-theme="rain"] .brand-tag { font-family: var(--rn-font); font-weight: 4
 .site-foot a { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
 .site-foot a:hover { opacity: 1; text-decoration-thickness: 2px; }
 #app.view-facil .site-foot { display: none; }
+/* device fit: no Float where it can't work (phones, tablets); no Facilitate on phone-size screens; no keyboard help on touchscreens */
+html.no-float #btnFloat, html.no-float .guide-float { display: none; }
+@media (max-width: 600px) { #btnFacilitate, .facil-only { display: none; } }
+html.touch #btnHelp, html.touch #hints, html.touch .guide-keys-title, html.touch .guide-keys, html.touch .keys-only { display: none !important; }
 html[data-theme="8bit"] .site-foot { font: 16px/1.2 var(--vt); color: #ffffff; }
 #app { transition: padding-right .25s ease, padding-left .25s ease; }
 
@@ -1349,9 +1361,9 @@ html[data-theme="rain"] .mini-timer .mini-time[data-len="7"] { font-size: 12cqw;
       <button class="btn primary guide-tour" id="guideTour" type="button"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Take the 1-minute tour</button>
       <ol class="guide-list">
         <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds.</span></li>
-        <li><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
-        <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime. <b>Facilitate</b>: full screen with room for instructions.</span></li>
-        <li><b>Set the time</b><span>Click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>. Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></li>
+        <li class="guide-float"><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
+        <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Facilitate</b>: full screen with room for instructions.</span></span></li>
+        <li><b>Set the time</b><span>Tap or click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>.<span class="keys-only"> Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></span></li>
         <li><b>Make it yours</b><span>⚙ has common school colors, fonts, and palettes.</span></li>
       </ol>
       <p class="set-title guide-keys-title">Keys</p>
@@ -6219,8 +6231,19 @@ const UI = (() => {
   }
   function restartLoop() { rafGen++; const g = rafGen; hostWindow().requestAnimationFrame(() => loop(g)); }
 
+  /* keep the screen awake while the timer runs (phones and tablets would otherwise dim and lock mid-countdown) */
+  let wakeLock = null;
+  async function keepAwake(on) {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      if (on && !wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); }
+      else if (!on && wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
+    } catch (e) { wakeLock = null; }
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && timer.running) keepAwake(true); });
   function syncState(reason) {
     const running = timer.running;
+    keepAwake(running);
     el.start.textContent = running ? 'Pause' : (timer.finished ? 'Restart' : (timer.remaining() < timer.total && timer.remaining() > 0 ? 'Resume' : 'Start'));
     el.clock.readOnly = running;
     if (running && el.clock.ownerDocument.activeElement === el.clock) { el.clock.setSelectionRange(0, 0); el.clock.blur(); }
@@ -6505,6 +6528,7 @@ const UI = (() => {
     shuffleBag = [];
     [...el.chips.children, ...el.musicMenu.children].forEach(b => { b.hidden = !!b.dataset.set && b.dataset.set !== set; });   // only this theme's songs (+ Off)
     [...el.modePick.children].forEach(b => b.setAttribute('aria-checked', String(b.dataset.theme === th.id)));
+    requestAnimationFrame(() => centerVibe(true));
     buildSettings();
     if (timer.running) syncState('style');                     // re-arm the cues in the new style
     if (persist) { settings.theme = th.id; saveSettings(); }
@@ -6519,6 +6543,17 @@ const UI = (() => {
     b.addEventListener('click', () => setTheme(t.id));
     el.modePick.appendChild(b);
   }
+  /** phones: bring the chosen vibe to the middle of the swipe row */
+  function centerVibe(smooth) {
+    const pick = el.modePick, on = pick.querySelector('[aria-checked="true"]');
+    if (!on || pick.scrollWidth <= pick.clientWidth + 1) return;
+    const pr = pick.getBoundingClientRect(), ar = on.getBoundingClientRect();
+    pick.scrollTo({ left: pick.scrollLeft + (ar.left - pr.left) - (pr.width - ar.width) / 2, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+  }
+  window.addEventListener('load', () => centerVibe(false));
+  if (document.fonts) document.fonts.ready.then(() => centerVibe(false));
+  const markEnd = () => el.modePick.classList.toggle('at-end', el.modePick.scrollLeft + el.modePick.clientWidth >= el.modePick.scrollWidth - 4);
+  el.modePick.addEventListener('scroll', markEnd, { passive: true }); window.addEventListener('resize', markEnd);   // the right-edge fade hints "swipe for more" until the end
   /** Keep the header on one line in every vibe: the tagline steps its type down to fit the room beside the buttons;
       if a vibe's lettering still doesn't fit, How to use drops to its icon. The hourglass matches the name + tagline height. */
   function fitBrand() {
@@ -6817,15 +6852,27 @@ const UI = (() => {
   const TOUR = [
     { t: null, title: 'Welcome to HoverTime', body: 'Your timekeeping sidekick, in a one-minute tour of the features people love most. Use the arrow keys or the buttons; Esc closes it anytime.' },
     { t: '#modePick', title: 'Pick a vibe', body: 'Ten vibes, from calm Basic to 8-bit, Game Show, and Cozy Rain. Each one brings its own look, music, and sounds, and your choice is remembered.' },
-    { t: '#btnFloat', title: 'Hover over your slides', body: 'The “Hover” in HoverTime: Float pops the timer into a small window that stays on top, even over full-screen Google Slides or PowerPoint, so everyone can see the time while you present. Forgot to set it up? With music on, just switching to your slides can float it automatically (Chrome asks once).' },
-    { t: null, wide: true, title: 'Float, then make it tiny', body: FLOAT_ART + '<span class="tour-note">In the Float window, <b>–</b> shrinks it to a small icon that still counts down. Click the icon to bring it back, and <b>Dock</b> returns it to this page.</span>' },
-    { t: '#btnMore', title: 'Pair up, Rotation, Facilitate', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Facilitate</b> goes full screen with room for instructions, and you can paste a screenshot.' },
-    { t: '#clock', title: 'Set the time', body: 'Click the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then press Enter. Or press <b>1–9</b> for that many minutes (<b>0</b> = 10).' },
-    { t: '.controls', title: 'Start and adjust', body: 'Start or pause with the button or the <b>Space</b> bar. <b>−1</b> and <b>+1</b> change the time by a minute, even while it runs (the ↑ ↓ keys work too).' },
-    { t: '.music', title: 'Music', body: 'Background tracks made for each style. <b>Shuffle</b> changes songs every couple of minutes, and <b>M</b> mutes or brings the music back.' },
+    { t: '#btnFloat', float: true, title: 'Hover over your slides', body: 'The “Hover” in HoverTime: Float pops the timer into a small window that stays on top, even over full-screen Google Slides or PowerPoint, so everyone can see the time while you present. Forgot to set it up? With music on, just switching to your slides can float it automatically (Chrome asks once).' },
+    { t: null, wide: true, float: true, title: 'Float, then make it tiny', body: FLOAT_ART + '<span class="tour-note">In the Float window, <b>–</b> shrinks it to a small icon that still counts down. Click the icon to bring it back, and <b>Dock</b> returns it to this page.</span>' },
+    { t: '#btnMore', title: 'Pair up, Rotation, Facilitate', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Facilitate</b> goes full screen with room for instructions, and you can paste a screenshot.',
+      small: { title: 'Pair up and Rotation', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch.' } },
+    { t: '#clock', title: 'Set the time', body: 'Click the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then press Enter. Or press <b>1–9</b> for that many minutes (<b>0</b> = 10).',
+      touch: 'Tap the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then tap Done.' },
+    { t: '.controls', title: 'Start and adjust', body: 'Start or pause with the button or the <b>Space</b> bar. <b>−1</b> and <b>+1</b> change the time by a minute, even while it runs (the ↑ ↓ keys work too).',
+      touch: 'Tap <b>Start</b> to start or pause. <b>−1</b> and <b>+1</b> change the time by a minute, even while it runs. Your screen stays awake while it counts down.' },
+    { t: '.music', title: 'Music', body: 'Background tracks made for each style. <b>Shuffle</b> changes songs every couple of minutes, and <b>M</b> mutes or brings the music back.',
+      touch: 'Background tracks made for each style. <b>Shuffle</b> changes songs every couple of minutes; tap <b>Off</b> for quiet.' },
     { t: '#btnSettings', title: 'Make it yours', body: 'Color presets (including <b>common school colors</b>), fonts, and palettes for the current style.' },
-    { t: '#btnTour', title: 'Your cheat sheet', body: 'That’s the tour! <b>How to use</b> opens a quick guide beside the timer anytime, with every shortcut.' },
+    { t: '#btnTour', title: 'Your cheat sheet', body: 'That’s the tour! <b>How to use</b> opens a quick guide beside the timer anytime, with every shortcut.',
+      touch: 'That’s the tour! The <b>?</b> button at the top opens a quick guide anytime.' },
   ];
+  /* what this device can do: Float needs Document Picture-in-Picture (desktop Chrome / Edge); phones and tablets hide it.
+     Touchscreens skip keyboard help; small screens skip Facilitate. The tour and guide follow along. */
+  const canFloat = () => 'documentPictureInPicture' in window, isTouch = () => matchMedia('(hover: none) and (pointer: coarse)').matches;
+  const isSmall = () => matchMedia('(max-width: 600px)').matches;
+  if (!canFloat() && isTouch()) document.documentElement.classList.add('no-float');
+  if (isTouch()) document.documentElement.classList.add('touch');
+  let tourSteps = TOUR;
   let tourI = -1, tourEls = null, tourOpener = null;
   function tourBuild() {
     const root = document.createElement('div');
@@ -6851,6 +6898,8 @@ const UI = (() => {
     if (el.app.classList.contains('view-facil')) exitFacil();
     setSettings(false); setMenu(false); setGuide(false);
     tourOpener = document.activeElement;
+    tourSteps = TOUR.filter(st => !(st.float && document.documentElement.classList.contains('no-float')))
+      .map(st => isSmall() && st.small ? { ...st, ...st.small } : isTouch() && st.touch ? { ...st, body: st.touch } : st);
     tourEls = tourEls || tourBuild(); tourEls.root.hidden = false;
     try { localStorage.setItem('pt-toured', '1'); } catch (e) {}
     el.tourBtn.classList.remove('fresh');
@@ -6863,14 +6912,14 @@ const UI = (() => {
   }
   function tourGo(i) {
     if (i < 0 || !tourEls) return;
-    if (i >= TOUR.length) { tourEnd(); return; }
+    if (i >= tourSteps.length) { tourEnd(); return; }
     tourI = i;
-    const st = TOUR[i], E = tourEls;
-    E.step.textContent = i ? `Step ${i} of ${TOUR.length - 1}` : 'How to use';
+    const st = tourSteps[i], E = tourEls;
+    E.step.textContent = i ? `Step ${i} of ${tourSteps.length - 1}` : 'How to use';
     E.title.textContent = st.title; E.body.innerHTML = st.body;          // fixed, trusted strings
     E.back.hidden = i === 0;
-    E.next.textContent = i === TOUR.length - 1 ? 'Done' : i === 0 ? 'Start the tour' : 'Next';
-    E.dots.innerHTML = TOUR.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('');
+    E.next.textContent = i === tourSteps.length - 1 ? 'Done' : i === 0 ? 'Start the tour' : 'Next';
+    E.dots.innerHTML = tourSteps.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('');
     const target = st.t && document.querySelector(st.t);
     if (target) target.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
     tourPlace(); setTimeout(tourPlace, reduceMotion ? 0 : 320);        // again once the scroll settles
@@ -6878,7 +6927,7 @@ const UI = (() => {
   }
   function tourPlace() {
     if (tourI < 0 || !tourEls) return;
-    const st = TOUR[tourI], E = tourEls, target = st.t && document.querySelector(st.t), vw = innerWidth, vh = innerHeight, gap = 12;
+    const st = tourSteps[tourI], E = tourEls, target = st.t && document.querySelector(st.t), vw = innerWidth, vh = innerHeight, gap = 12;
     const cw = Math.min(st.wide ? 400 : 340, vw - 24), ch = E.card.offsetHeight || 200;
     if (!target) {
       Object.assign(E.hole.style, { left: vw / 2 + 'px', top: vh / 2 + 'px', width: '0px', height: '0px' });
