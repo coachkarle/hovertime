@@ -402,10 +402,7 @@ html[data-theme="8bit"] .panel {
   background: var(--shell); color: var(--on-shell); font-family: var(--vt); padding-top: 38px;
   border-radius: 12px 12px 56px 12px; box-shadow: inset -4px -4px 0 rgba(0,0,0,.18), 6px 6px 0 rgba(0,0,0,.35);
 }
-html[data-theme="8bit"] .panel::before {
-  content: "POCKET TIMER"; top: 12px; left: 18px; right: auto; height: auto; background: none;
-  font: 9px/1 var(--px); letter-spacing: 1px; color: var(--on-shell);
-}
+html[data-theme="8bit"] .panel::before { display: none; }          /* no label on the handheld: that strip is where banners pop up */
 html[data-theme="8bit"] .panel::after { background: radial-gradient(120% 90% at 50% 38%, var(--g3) 0%, var(--g1) 45%, var(--shell) 80%); }
 html[data-theme="8bit"] .kicker { font: 20px/1 var(--vt); letter-spacing: 1px; color: var(--on-shell); border-radius: 0; }
 /* pop-up banners (Under 1 min / Wrap up / Turn 2!) burst in over the screen like a game notification */
