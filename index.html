@@ -593,7 +593,11 @@ html[data-theme="rain"] .brand-tag { font-family: var(--rn-font); font-weight: 4
   }
   .mode-pick.at-end { -webkit-mask-image: none; mask-image: none; }
   .mode-pick::-webkit-scrollbar { display: none; }
-  .mode-pick .seg { flex: 0 0 auto; padding: 9px 14px; scroll-snap-align: center; }
+  .mode-pick .seg { position: relative; flex: 0 0 auto; padding: 9px 14px; scroll-snap-align: center; }
+  .mode-pick .seg + .seg::before {                                    /* a thin divider between vibe names, in each theme's label color */
+    content: ""; position: absolute; left: -1.5px; top: 30%; bottom: 30%; width: 1px; background: currentColor; opacity: .4; pointer-events: none;
+  }
+  .mode-pick .seg[aria-checked="true"]::before, .mode-pick .seg[aria-checked="true"] + .seg::before { opacity: 0; }   /* the chosen pill needs no divider */
 }
 .mode-pick .seg:hover { background: var(--btn); color: var(--btn-ink); }
 .mode-pick .seg[aria-checked="true"] { background: var(--primary); color: var(--on-primary); }
