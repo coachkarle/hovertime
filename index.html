@@ -28,20 +28,20 @@
   --orange:     #f7941e;   /* large elements only */
   --white:      #ffffff;
   --font: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  /* semantic tokens (the Basic defaults) */
-  --bg: var(--black-teal);        /* page */
+  /* semantic tokens: the Basic default (Ocean), so even the first paint is HoverTime's own look */
+  --bg: #0c1c24;                  /* page */
   --bg-ink: var(--white);         /* text sitting straight on the page */
-  --panel: var(--deep-teal);      /* timer card */
-  --deep: var(--black-teal);      /* inset surfaces: frame track, menus, Pair up strip */
+  --panel: #13384a;               /* timer card */
+  --deep: #0c1c24;                /* inset surfaces: frame track, menus, Pair up strip */
   --deep-ink: var(--white);
   --ink: var(--white);            /* digits + strong text */
-  --soft: var(--light-teal);      /* labels on the panel */
-  --btn: var(--dark-teal); --btn-hover: #17707f; --btn-ink: var(--white);
-  --line: var(--dark-teal); --chip-line: var(--mid-teal);
-  --primary: var(--light-teal); --primary-hover: var(--white); --on-primary: var(--black-teal); --flash: var(--white);
-  --accent: var(--green); --on-accent: var(--black-teal);        /* progress + 1-min banner */
-  --urgent: var(--orange); --on-urgent: var(--black-teal); --urgent-text: var(--orange);
-  --wash1: var(--mid-teal); --wash2: var(--dark-teal);
+  --soft: #bdeee8;                /* labels on the panel */
+  --btn: #1d4f63; --btn-hover: #256178; --btn-ink: var(--white);
+  --line: #1d4f63; --chip-line: #3a8fa0;
+  --primary: #bdeee8; --primary-hover: var(--white); --on-primary: #091d20; --flash: var(--white);
+  --accent: #5fd0c6; --on-accent: #091d20;        /* progress + 1-min banner */
+  --urgent: #ff8a6b; --on-urgent: #091d20; --urgent-text: #ff8a6b;
+  --wash1: #2f8f99; --wash2: #1d4f63;
   --mark: var(--white);
   color-scheme: dark;
 }
@@ -366,22 +366,28 @@ body.pip .music-menu.open {
 }
 /* ================================================================
    8-BIT MODE: a handheld-console look (dot-matrix screen, dialog boxes,
-   block buttons) in the teal / bright / warm palettes. Picked on the home page;
+   block buttons) in the ocean / teal / bright / warm palettes. Picked on the home page;
    carries into Float and Facilitate. Palettes via html[data-pal]:
-   teal (default), bright (primary colors), warm. Every text pair ≥ 4.7:1.
+   ocean (default), teal, bright (primary colors), warm. Every text pair ≥ 4.7:1.
    ================================================================ */
 html[data-theme="8bit"] {
-  /* teal handheld: Dark Teal body, Bright Teal screen, Black Teal pixels */
-  --g0: #091d20; --g1: #2f8d98; --g2: #f3fafc; --g3: #C7DEE0;
-  --shell: #115e6e; --on-shell: #ffffff; --bezel: #091d20; --desk: #091d20; --desk-line: #093c44;
+  /* ocean handheld (default): deep ocean body, pale aqua screen, near-black pixels; the ring runs aqua → coral */
+  --g0: #0c1c24; --g1: #2f8f99; --g2: #f1fbfa; --g3: #bdeee8;
+  --shell: #1d4f63; --on-shell: #ffffff; --bezel: #0c1c24; --desk: #0c1c24; --desk-line: #13384a;
   --px: 'Press Start 2P', 'Courier New', monospace;
   --vt: 'VT323', 'Courier New', monospace;
   --dialog: inset 0 0 0 3px var(--g3), inset 0 0 0 6px var(--g0);   /* double-line text box */
-  --a1: #f7941e; --a2: #b5cd34; --a3: #2f8d98; --a4: #C7DEE0;          /* block + shadow accents */
-  --a5: #a84c2a;                                                        /* A11y Orange: the deep end of the orange side */
-  --a6: #6a7f17;                                                        /* A11y Green: the deep end of the green side */
-  --pop-ink: #091d20;                                                   /* text on accent pop-ups */
-  --pop-min: #b5cd34; --pop-wrap: #f7941e; --pop-turn: #C7DEE0;         /* pop-up banners: under 1 min / wrap up + tags / turn */
+  --a1: #ff8a6b; --a2: #5fd0c6; --a3: #2f8f99; --a4: #bdeee8;          /* block + shadow accents */
+  --a5: #b8492f;                                                        /* the deep end of the coral side */
+  --a6: #1f7f86;                                                        /* the deep end of the aqua side */
+  --pop-ink: #0c1c24;                                                   /* text on accent pop-ups */
+  --pop-min: #5fd0c6; --pop-wrap: #ff8a6b; --pop-turn: #bdeee8;         /* pop-up banners: under 1 min / wrap up + tags / turn */
+}
+html[data-theme="8bit"][data-pal="teal"] {    /* teal handheld: dark teal body, pale teal screen, black-teal pixels; lime + orange accents */
+  --g0: #091d20; --g1: #2f8d98; --g2: #f3fafc; --g3: #C7DEE0;
+  --shell: #115e6e; --on-shell: #ffffff; --bezel: #091d20; --desk: #091d20; --desk-line: #093c44;
+  --a1: #f7941e; --a2: #b5cd34; --a3: #2f8d98; --a4: #C7DEE0; --a5: #a84c2a; --a6: #6a7f17;
+  --pop-ink: #091d20; --pop-min: #b5cd34; --pop-wrap: #f7941e; --pop-turn: #C7DEE0;
 }
 html[data-theme="8bit"][data-pal="bright"] {  /* toy-bright primaries: soft-white body, pale-yellow screen, navy pixels; bright red + blue + yellow as accents */
   --g0: #10205a; --g1: #2b59c3; --g2: #ffffff; --g3: #fff3b0;
@@ -543,7 +549,6 @@ html[data-theme="8bit"] .brand-tag { font-family: var(--vt); font-size: 16px; le
 html[data-theme="rain"] .brand-tag { font-family: var(--rn-font); font-weight: 400; }
 .home-actions { display: contents; }
 #btnSettings { order: 1; }
-@media (max-width: 480px) { .mode-pick .seg { flex-basis: calc(33.33% - 2px); } }
 .tour-btn { order: 1; position: relative; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; }
 .tour-btn.fresh::after {                                             /* a small "new" dot until the tour has been taken once */
   content: ""; position: absolute; top: -2px; right: -2px; width: 10px; height: 10px; border-radius: 50%;
@@ -581,11 +586,18 @@ html[data-theme="rain"] .brand-tag { font-family: var(--rn-font); font-weight: 4
   flex: 1 1 calc(20% - 2px); min-width: 0; appearance: none; border: 0; cursor: pointer; background: transparent; color: var(--soft);
   font-size: 13px; font-weight: 700; line-height: 1; border-radius: 999px; padding: 8px 3px; white-space: nowrap;
 }
+@media (max-width: 480px) { .mode-pick { border-radius: 18px; } .mode-pick .seg { flex-basis: calc(33.33% - 2px); } }   /* phones: three to a row (after the base rule, so it wins) */
 .mode-pick .seg:hover { background: var(--btn); color: var(--btn-ink); }
 .mode-pick .seg[aria-checked="true"] { background: var(--primary); color: var(--on-primary); }
 #btnSettings { width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border-radius: 50%; }
 #btnSettings svg { width: 18px; height: 18px; }
 #app.view-facil .home-bar { display: none; }
+/* the credit line: small and quiet, home page only (never in Float, the minimized icon, or Facilitate) */
+.site-foot { width: 100%; max-width: 440px; margin: 14px 0 4px; text-align: center; font-size: 12px; font-weight: 500; letter-spacing: .2px; color: var(--bg-ink); opacity: .78; }
+.site-foot a { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
+.site-foot a:hover { opacity: 1; text-decoration-thickness: 2px; }
+#app.view-facil .site-foot { display: none; }
+html[data-theme="8bit"] .site-foot { font: 16px/1.2 var(--vt); color: #ffffff; }
 #app { transition: padding-right .25s ease, padding-left .25s ease; }
 
 /* ⚙ settings: same visual language as the ⋯ menu */
@@ -1499,6 +1511,7 @@ html[data-theme="rain"] .mini-timer .mini-time[data-len="7"] { font-size: 12cqw;
       </div>
     </div>
   </section>
+  <footer class="site-foot">Made by Karle Delo · <a href="https://linktr.ee/coachkarle" target="_blank" rel="noopener">@coachkarle</a></footer>
 </main>
 <div class="toast" id="toast" role="status" hidden></div>
 
@@ -3882,11 +3895,17 @@ const Themes = (() => {
   ];
 
   /* ---------- Basic: five user colors ---------- */
-  const BASIC = { bg: '#091d20', panel: '#093c44', digits: '#ffffff', accent: '#b5cd34', urgent: '#f7941e' };
+  const BASIC = { bg: '#0c1c24', panel: '#13384a', digits: '#ffffff', accent: '#5fd0c6', urgent: '#ff8a6b' };   // Ocean: HoverTime's own calm aqua + coral
+  const BASIC_TEAL = { bg: '#091d20', panel: '#093c44', digits: '#ffffff', accent: '#b5cd34', urgent: '#f7941e' };
+  const BASIC_TONES = [
+    [BASIC,      { deep: '#0c1c24', soft: '#bdeee8', btn: '#1d4f63', btnHover: '#256178', primary: '#bdeee8', primaryHover: '#ffffff', chip: '#3a8fa0', wash1: '#2f8f99', wash2: '#1d4f63' }],
+    [BASIC_TEAL, { deep: '#091d20', soft: '#C7DEE0', btn: '#115e6e', btnHover: '#17707f', primary: '#C7DEE0', primaryHover: '#ffffff', chip: '#2f8d98', wash1: '#2f8d98', wash2: '#115e6e' }],
+  ];
   /* School colors: the pairings US schools use most (red & white, blue & white, red & black, black & gold,
      green & white, blue & gold, navy & orange, maroon, purple & gold …). Main color = the panel, second = the progress accent. */
   const BASIC_PRESETS = [
-    { id: 'teal',     group: 'Favorites', label: 'Teal',          c: BASIC },
+    { id: 'ocean',    group: 'Favorites', label: 'Ocean',         c: BASIC },
+    { id: 'teal',     group: 'Favorites', label: 'Teal',          c: BASIC_TEAL },
     { id: 'midnight', group: 'Favorites', label: 'Midnight',      c: { bg: '#0b1020', panel: '#1b2340', digits: '#ffffff', accent: '#7aa2ff', urgent: '#ffb454' } },
     { id: 'berry',    group: 'Favorites', label: 'Berry',         c: { bg: '#1a0f1e', panel: '#3a1a3f', digits: '#fff0f7', accent: '#ff6fae', urgent: '#ff9ccb' } },
     { id: 'paper',    group: 'Favorites', label: 'Paper',         c: { bg: '#e9e4d8', panel: '#fbf8f1', digits: '#1f1d1a', accent: '#2f6f5e', urgent: '#b4441c' } },
@@ -3905,24 +3924,24 @@ const Themes = (() => {
     { id: 'redgray',     group: 'Common school colors', label: 'Red & Gray',     c: { bg: '#3a3b3f', panel: '#a3161f', digits: '#ffffff', accent: '#c7c9cc', urgent: '#e6e7ea' } },
   ];
   function basicTokens(c) {
-    const same = k => c[k] === BASIC[k], warnings = [];
-    if (Object.keys(BASIC).every(same)) return { vars: {}, warnings };        // defaults: the stylesheet as written
-    const panel = c.panel, base = same('panel') && same('digits');          // untouched panel + digits keep their exact tones
+    const warnings = [], panel = c.panel;
+    // Ocean (the default) and Teal keep their hand-picked tones while their panel + digits are untouched
+    const hit = BASIC_TONES.find(([p]) => p.panel === c.panel && p.digits === c.digits), base = !!hit, T = hit ? hit[1] : null, same = k => hit && c[k] === hit[0][k];
     let ink = c.digits;
     if (Color.contrast(ink, panel) < 4.5) {
       ink = Color.pick([panel]);
       warnings.push(`Digits were too close to the panel color, so they show in ${nameOf(ink)}.`);
     }
     const darkPanel = Color.lum(panel) < Color.lum(ink);
-    const deep = base ? '#091d20' : Color.mix(panel, '#000000', darkPanel ? 0.5 : 0.07);
-    const soft = base ? '#C7DEE0' : Color.soften(ink, panel, [panel, deep], 0.26);
-    let btn = '#115e6e', btnHover = '#17707f';
+    const deep = base ? T.deep : Color.mix(panel, '#000000', darkPanel ? 0.5 : 0.07);
+    const soft = base ? T.soft : Color.soften(ink, panel, [panel, deep], 0.26);
+    let btn = base ? T.btn : '#115e6e', btnHover = base ? T.btnHover : '#17707f';
     if (!base) for (const t of [0.15, 0.11, 0.07, 0.04]) {             // lift the buttons off the panel, but only as far as their text still passes AA
       btn = Color.mix(panel, ink, t); btnHover = Color.mix(panel, ink, t + 0.08);
       if ([btn, btnHover].every(b => Color.contrast(ink, b) >= 4.5)) break;
     }
-    const primary = base ? '#C7DEE0' : Color.mix(ink, panel, 0.2), onPrimary = Color.pick([primary]);
-    let primaryHover = base ? '#ffffff' : ink;
+    const primary = base ? T.primary : Color.mix(ink, panel, 0.2), onPrimary = Color.pick([primary]);
+    let primaryHover = base ? T.primaryHover : ink;
     if (Color.contrast(onPrimary, primaryHover) < 4.5) primaryHover = primary;
     const accent = c.accent, urgent = c.urgent;
     if (Color.contrast(accent, panel) < 3 && Color.contrast(accent, deep) < 3) warnings.push('The progress color is hard to see on the panel.');
@@ -3933,10 +3952,10 @@ const Themes = (() => {
     }
     return { warnings, vars: {
       bg: c.bg, 'bg-ink': Color.pick([c.bg], ink), panel, deep, 'deep-ink': Color.pick([deep], ink), ink, soft,
-      btn, 'btn-hover': btnHover, 'btn-ink': Color.pick([btn, btnHover], ink), line: btn, 'chip-line': base ? '#2f8d98' : Color.mix(panel, ink, 0.4),
+      btn, 'btn-hover': btnHover, 'btn-ink': Color.pick([btn, btnHover], ink), line: btn, 'chip-line': base ? T.chip : Color.mix(panel, ink, 0.4),
       primary, 'primary-hover': primaryHover, 'on-primary': onPrimary, flash: Color.lum(onPrimary) > 0.5 ? '#000000' : '#ffffff',
       accent, 'on-accent': Color.pick([accent]), urgent, 'on-urgent': Color.pick([urgent]), 'urgent-text': urgentText,
-      wash1: base && same('accent') ? '#2f8d98' : Color.mix(panel, accent, 0.45), wash2: base ? '#115e6e' : Color.mix(panel, ink, 0.12), mark: ink,
+      wash1: base && same('accent') ? T.wash1 : Color.mix(panel, accent, 0.45), wash2: base ? T.wash2 : Color.mix(panel, ink, 0.12), mark: ink,
     } };
   }
 
@@ -5951,7 +5970,7 @@ const Themes = (() => {
       renderer: FrameRenderer() },
     { id: '8bit', label: '8-bit', steppedFinal: true,
       colors: null, font: false,
-      palettes: [{ id: 'teal', label: 'Teal', swatch: ['#115e6e', '#C7DEE0', '#b5cd34'] }, { id: 'bright', label: 'Bright', swatch: ['#fbf8f1', '#e0262f', '#2b7fff'] },
+      palettes: [{ id: 'ocean', label: 'Ocean', swatch: ['#1d4f63', '#bdeee8', '#5fd0c6'] }, { id: 'teal', label: 'Teal', swatch: ['#115e6e', '#C7DEE0', '#b5cd34'] }, { id: 'bright', label: 'Bright', swatch: ['#fbf8f1', '#e0262f', '#2b7fff'] },
                  { id: 'warm', label: 'Warm', swatch: ['#e4b782', '#2f8d98', '#c8553d'] }],
       music: { set: 'chip', first: 'arcade' }, tempo: 'follow', cues: 'chip',
       banners: { oneMin: 'Under 1 min', turn: n => `Turn ${n}!` },
