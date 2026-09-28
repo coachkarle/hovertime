@@ -727,6 +727,13 @@ html[data-theme="sand"] body.pip .clock-wrap { flex: 1 1 auto; min-height: 0; fl
 html[data-theme="sand"] body.pip .sand-glass { flex: none; width: 30%; max-width: 150px; height: 100%; }
 html[data-theme="sand"] body.pip .clock { flex: 1 1 0; min-width: 0; width: auto; font-size: min(17vw, 28vh); }
 html[data-theme="sand"] body.pip .panel:has(.prompt-strip:not([hidden])) .clock { font-size: min(13vw, 20vh); }
+/* Full screen held upright: the hourglass sits over the digits (the side-by-side Float layout leaves a thin glass on the edge and digits adrift in the middle) */
+@media (orientation: portrait) {
+  html[data-theme="sand"] body.pip.full .clock-wrap { flex-direction: column; justify-content: center; gap: 2vh; padding: 2px 8px; }
+  html[data-theme="sand"] body.pip.full .sand-glass { flex: 1 1 0; width: 100%; max-width: 340px; height: auto; min-height: 0; max-height: 64vh; }
+  html[data-theme="sand"] body.pip.full .clock { flex: none; width: auto; font-size: min(21vw, 10vh); }
+  html[data-theme="sand"] body.pip.full .panel:has(.prompt-strip:not([hidden])) .clock { font-size: min(16vw, 8vh); }
+}
 /* Facilitate */
 html[data-theme="sand"] #app.view-facil .panel { padding-top: 54px; }
 html[data-theme="sand"] #app.view-facil .sand-glass { height: clamp(130px, 36vh, 440px); }
@@ -1335,6 +1342,10 @@ html[data-theme="rain"] #app.view-facil .clock-wrap { height: clamp(220px, 46vh,
 .mini-rain { display: none; }
 html[data-theme="rain"] .mini-timer .mini-icon { display: none; }
 html[data-theme="rain"] .mini-rain { display: block; width: 76%; height: 42%; flex: none; border-radius: 10%; }
+/* Full screen held upright: keep the scene's home-page proportions (about square) instead of stretching the window into a tall slit with tiny objects */
+@media (orientation: portrait) {
+  html[data-theme="rain"] body.pip.full .clock-wrap { flex: none; height: auto; width: min(100%, 50vh); aspect-ratio: 1 / 1.25; margin: 4px auto 6px; }
+}
 html[data-theme="rain"] body.pip.mini .mini-timer { border-radius: 20%; gap: 5%; box-shadow: 0 0 0 1px color-mix(in srgb, var(--rn-lamp) 25%, transparent); }
 html[data-theme="rain"] .mini-timer .mini-time { font-family: var(--rn-font); font-weight: 400; font-size: 21cqw; color: var(--rn-digit); }
 html[data-theme="rain"] .mini-timer .mini-time[data-len="5"] { font-size: 17cqw; }
