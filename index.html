@@ -6809,7 +6809,7 @@ const UI = (() => {
     theme().renderer.invalidate(); resizeFx(); restartLoop(); requestAnimationFrame(() => { fitText(); fitPrompt(); });
     try { if (document.documentElement.requestFullscreen && !document.fullscreenElement) { await document.documentElement.requestFullscreen({ navigationUI: 'hide' }); fullReal = true; } } catch (e) {}
     try { if (fullReal && screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape'); } catch (e) {}
-    setTimeout(() => { if (document.body.classList.contains('full') && matchMedia('(orientation: portrait)').matches) toast('Tip: turn your phone sideways for a bigger timer'); }, 400);
+    setTimeout(() => { if (document.body.classList.contains('full') && matchMedia('(orientation: portrait)').matches) toast('Tip: turn your phone sideways for the best view.'); }, 400);
   }
   function exitFull() {
     if (!document.body.classList.contains('full')) return;
