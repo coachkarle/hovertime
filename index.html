@@ -611,7 +611,17 @@ html[data-theme="rain"] .brand-tag { font-family: var(--rn-font); font-weight: 4
 #app.view-facil .site-foot { display: none; }
 /* device fit: no Float where it can't work (phones, tablets); no Facilitate on phone-size screens; no keyboard help on touchscreens */
 html.no-float #btnFloat, html.no-float .guide-float { display: none; }
-@media (max-width: 600px) { #btnFacilitate, .facil-only { display: none; } }
+#btnFull, .full-only, #btnExitFull { display: none; }
+@media (max-width: 600px), (max-height: 500px) and (pointer: coarse) {                     /* phones, held either way */
+  #btnFacilitate, .facil-only { display: none; }
+  #btnFull { display: inline-block; } .full-only { display: inline; }
+}
+/* Full screen (phones): just the timer panel, filling the screen, laid out like the Float window */
+body.full #app { padding: 0; }
+body.full #app > :not(#panel) { display: none !important; }
+body.full .panel { height: 100dvh !important; min-height: 100dvh !important; max-width: none !important; border-radius: 0 !important; }
+body.full #btnFloat, body.full #btnMini, body.full #btnFull { display: none !important; }
+body.full #btnExitFull { display: inline-block; }
 html.touch #btnHelp, html.touch #hints, html.touch .guide-keys-title, html.touch .guide-keys, html.touch .keys-only { display: none !important; }
 html[data-theme="8bit"] .site-foot { font: 16px/1.2 var(--vt); color: #ffffff; }
 #app { transition: padding-right .25s ease, padding-left .25s ease; }
@@ -1366,7 +1376,7 @@ html[data-theme="rain"] .mini-timer .mini-time[data-len="7"] { font-size: 12cqw;
       <ol class="guide-list">
         <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds.</span></li>
         <li class="guide-float"><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
-        <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Facilitate</b>: full screen with room for instructions.</span></span></li>
+        <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Facilitate</b>: full screen with room for instructions.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
         <li><b>Set the time</b><span>Tap or click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>.<span class="keys-only"> Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></span></li>
         <li><b>Make it yours</b><span>⚙ has common school colors, fonts, and palettes.</span></li>
       </ol>
@@ -1430,6 +1440,7 @@ html[data-theme="rain"] .mini-timer .mini-time[data-len="7"] { font-size: 12cqw;
       <span class="kicker" id="status"></span>
       <div class="head-actions">
         <button class="btn small" id="btnFloat" type="button" title="Pop the timer into an always-on-top window that stays over full-screen slides">Float</button>
+        <button class="btn small" id="btnExitFull" type="button" title="Leave full screen">Exit</button>
         <button class="btn small" id="btnMini" type="button" title="Minimize to a timer icon (click it to bring the timer back)" aria-label="Minimize">–</button>
         <button class="btn small" id="btnMore" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu" title="Pair up, Rotation, Facilitate" aria-label="More options">⋯</button>
       </div>
@@ -1438,6 +1449,7 @@ html[data-theme="rain"] .mini-timer .mini-time[data-len="7"] { font-size: 12cqw;
       <button class="btn small" id="btnPrompt" type="button" role="menuitem" title="Show a random partner-finding prompt (G)">Pair up</button>
       <button class="btn small" id="btnRotation" type="button" role="menuitem" aria-pressed="false" title="Split the time into equal turns, with a soft cue at each switch">Rotation</button>
       <button class="btn small" id="btnFacilitate" type="button" role="menuitem" title="Full-screen view with room for instructions (F)">Facilitate</button>
+      <button class="btn small" id="btnFull" type="button" role="menuitem" title="Just the timer, filling the screen">Full screen</button>
     </div>
 
     <div class="clock-wrap">
@@ -6337,6 +6349,7 @@ const UI = (() => {
     if (k === 'm' || k === 'M') { AudioEngine.unlock(); act.musicToggle(); return; }
     if (k === 'f' || k === 'F') { toggleFacil(); return; }
     if (k === 'g' || k === 'G') { act.prompt(); return; }
+    if (k === 'Escape' && document.body.classList.contains('full')) { exitFull(); return; }
     if (k === 'Escape' && (menuOpen() || musicMenuOpen())) { setMenu(false); setMusicMenu(false); return; }
     if (k === 'Escape' && promptActive) { dismissPrompt(); return; }
   }
@@ -6775,6 +6788,29 @@ const UI = (() => {
 
   /* ---------- Float ⋯ menu ---------- */
   const menuOpen = () => el.moreMenu.classList.contains('open');
+  /* phones: Full screen = just the timer, filling the screen. Where the browser allows (Android Chrome) it also goes truly
+     full screen and turns to landscape; elsewhere (iPhone Safari) turning the phone sideways does the same job. */
+  let fullReal = false;
+  async function enterFull() {
+    setMenu(false);
+    if (el.app.classList.contains('view-facil')) exitFacil();
+    document.body.classList.add('pip', 'full');
+    theme().renderer.invalidate(); resizeFx(); restartLoop(); requestAnimationFrame(() => { fitText(); fitPrompt(); });
+    try { if (document.documentElement.requestFullscreen && !document.fullscreenElement) { await document.documentElement.requestFullscreen({ navigationUI: 'hide' }); fullReal = true; } } catch (e) {}
+    try { if (fullReal && screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape'); } catch (e) {}
+    setTimeout(() => { if (document.body.classList.contains('full') && matchMedia('(orientation: portrait)').matches) toast('Tip: turn your phone sideways for a bigger timer'); }, 400);
+  }
+  function exitFull() {
+    if (!document.body.classList.contains('full')) return;
+    document.body.classList.remove('pip', 'full');
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
+    fullReal = false;
+    theme().renderer.invalidate(); resizeFx(); restartLoop(); requestAnimationFrame(() => { fitText(); fitPrompt(); fitBrand(); });
+  }
+  $('btnFull').addEventListener('click', enterFull);
+  $('btnExitFull').addEventListener('click', exitFull);
+  document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && fullReal) exitFull(); });   // the system back gesture leaves full screen too
   function setMenu(open) { el.moreMenu.classList.toggle('open', open); el.more.setAttribute('aria-expanded', String(open)); }
   el.more.addEventListener('click', () => { setMusicMenu(false); setMenu(!menuOpen()); });
   el.promptBtn.addEventListener('click', () => setMenu(false));   // (showPrompt is wired in the prompts section)
@@ -6859,7 +6895,7 @@ const UI = (() => {
     { t: '#btnFloat', float: true, title: 'Hover over your slides', body: 'The “Hover” in HoverTime: Float pops the timer into a small window that stays on top, even over full-screen Google Slides or PowerPoint, so everyone can see the time while you present. Forgot to set it up? With music on, just switching to your slides can float it automatically (Chrome asks once).' },
     { t: null, wide: true, float: true, title: 'Float, then make it tiny', body: FLOAT_ART + '<span class="tour-note">In the Float window, <b>–</b> shrinks it to a small icon that still counts down. Click the icon to bring it back, and <b>Dock</b> returns it to this page.</span>' },
     { t: '#btnMore', title: 'Pair up, Rotation, Facilitate', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Facilitate</b> goes full screen with room for instructions, and you can paste a screenshot.',
-      small: { title: 'Pair up and Rotation', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch.' } },
+      small: { title: 'Pair up, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> shows just the timer, big: turn your phone sideways.' } },
     { t: '#clock', title: 'Set the time', body: 'Click the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then press Enter. Or press <b>1–9</b> for that many minutes (<b>0</b> = 10).',
       touch: 'Tap the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then tap Done.' },
     { t: '.controls', title: 'Start and adjust', body: 'Start or pause with the button or the <b>Space</b> bar. <b>−1</b> and <b>+1</b> change the time by a minute, even while it runs (the ↑ ↓ keys work too).',
@@ -6873,7 +6909,7 @@ const UI = (() => {
   /* what this device can do: Float needs Document Picture-in-Picture (desktop Chrome / Edge); phones and tablets hide it.
      Touchscreens skip keyboard help; small screens skip Facilitate. The tour and guide follow along. */
   const canFloat = () => 'documentPictureInPicture' in window, isTouch = () => matchMedia('(hover: none) and (pointer: coarse)').matches;
-  const isSmall = () => matchMedia('(max-width: 600px)').matches;
+  const isSmall = () => matchMedia('(max-width: 600px), (max-height: 500px) and (pointer: coarse)').matches;   // phones, either orientation
   if (!canFloat() && isTouch()) document.documentElement.classList.add('no-float');
   if (isTouch()) document.documentElement.classList.add('touch');
   let tourSteps = TOUR;
