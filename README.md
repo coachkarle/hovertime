@@ -4,7 +4,7 @@
 
 HoverTime is a free classroom and workshop timer that floats over your slides. It has ten themed vibes (from calm to game show to a cozy rainy window), built-in music, and partner-pairing prompts that keep a room moving.
 
-**▶ Use it:** open the published page. Nothing to install, and no account needed.
+**▶ Use it: [coachkarle.github.io/hovertime](https://coachkarle.github.io/hovertime/)**. Nothing to install, and no account needed.
 
 ## Highlights
 

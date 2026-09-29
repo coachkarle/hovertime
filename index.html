@@ -3,7 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HoverTime</title>
+<title>HoverTime: Free Classroom &amp; Facilitation Timer</title>
+<meta name="description" content="A free online classroom and facilitation timer that floats over your slides. Ten visual timer vibes, built-in music, partner prompts, and equal-turn rotations for teachers, trainers, and workshops. No sign-up, no ads.">
+<link rel="canonical" href="https://coachkarle.github.io/hovertime/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://coachkarle.github.io/hovertime/">
+<meta property="og:title" content="HoverTime: a free timer that floats over your slides">
+<meta property="og:description" content="Free classroom and workshop timer with ten visual vibes, built-in music, and partner prompts. No sign-up, no ads.">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "WebApplication", "name": "HoverTime", "alternateName": "HoverTime classroom timer",
+ "url": "https://coachkarle.github.io/hovertime/", "applicationCategory": "EducationalApplication", "operatingSystem": "Any (web browser)",
+ "description": "A free online classroom and facilitation timer that floats over your slides, with ten visual timer vibes, built-in music, partner-finding prompts, and equal-turn rotations.",
+ "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+ "audience": {"@type": "Audience", "audienceType": "Teachers, trainers, facilitators, and meeting leaders"},
+ "featureList": ["Always-on-top floating timer over full-screen slides (Chrome and Edge)", "Ten visual timer vibes: Basic, Sand Timer, Wedge, 8-bit, Synthwave, Sunrise, Grow, Game Show, Cozy Rain, Sci-Fi", "Original background music and sound cues", "Pair up: random partner-finding prompts", "Rotation: equal turns with a chime at each switch", "Facilitate: full-screen view with instructions", "No sign-up, no ads, no cookies"],
+ "author": {"@type": "Person", "name": "Karle Delo", "url": "https://linktr.ee/coachkarle"}}
+</script>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is HoverTime?", "acceptedAnswer": {"@type": "Answer", "text": "HoverTime is a free online classroom timer and facilitation timer for teachers, trainers, and anyone leading a workshop or meeting. It runs in the browser with nothing to install, no account, and no ads."}}, {"@type": "Question", "name": "Can HoverTime stay on screen over my slides?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Float pops the countdown into a small always-on-top window that stays visible over full-screen Google Slides, PowerPoint, Keynote, or Canva presentations, so you never have to switch tabs to check the time. Minimize it to a tiny countdown icon when you want it out of the way. Float works in desktop Chrome and Edge."}}, {"@type": "Question", "name": "What does HoverTime offer for workshops and professional development?", "acceptedAnswer": {"@type": "Answer", "text": "Pair up shows random partner-finding prompts for turn-and-talks and think-pair-share. Rotation splits the time into equal turns with a soft chime at each switch, for partner shares, protocols, and station rotations. Facilitate gives a full-screen view with room for typed or pasted instructions, and gentle cues let the room know when time is almost up."}}, {"@type": "Question", "name": "Does HoverTime have visual timers for elementary teachers?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Ten vibes include a sand timer, a shrinking-wedge visual timer, a plant that grows and blooms at zero, a sunrise, an 8-bit arcade timer, and a game show timer. Elementary teachers use them so kids can see time passing at a glance, and animations respect your device's reduce-motion setting."}}, {"@type": "Question", "name": "Does HoverTime play music?", "acceptedAnswer": {"@type": "Answer", "text": "Each vibe has original background music for work time, from calm lo-fi to arcade and game show tracks, plus sound cues as time runs down. You can change the volume or turn music off."}}, {"@type": "Question", "name": "Is HoverTime free and private?", "acceptedAnswer": {"@type": "Answer", "text": "HoverTime is completely free. It works on laptops, Chromebooks, interactive whiteboards, tablets, and phones. Your settings stay in your own browser, no student data is collected, and the only tracking is an anonymous, cookie-free visit count."}}]}
+</script>
 <script data-goatcounter="https://coachkarle.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script>
 /* Anonymous usage counts (GoatCounter: no cookies, no personal data). Silently does nothing if blocked. */
@@ -350,6 +369,15 @@ body.pip.mini .mini-timer { container-type: size; }
 .mini-timer .mini-time[data-len="7"] { font-size: 12cqw; }
 .panel.done .mini-timer .mini-time { color: var(--urgent-text); }
 
+/* small HoverTime mark beside the Float buttons; steps aside while a banner (Wrap up, Time's up…) is showing */
+.float-brand { display: none; }
+body.pip:not(.full):not(.mini) .float-brand {
+  display: inline-flex; align-items: center; gap: 4px; margin-right: 4px;
+  font-size: 11px; font-weight: 700; letter-spacing: .3px; color: var(--soft); white-space: nowrap;
+}
+.float-brand svg { width: 8px; height: 11px; flex: none; }
+body.pip .panel-head:has(.kicker.pill, .kicker.over) .float-brand { display: none; }
+
 /* Float ⋯ menu: Pair up + Rotation */
 .more-menu { display: none; }
 .more-menu.open {
@@ -618,6 +646,21 @@ html[data-theme="rain"] .brand-tag { font-family: var(--rn-font); font-weight: 4
 .site-foot a { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
 .site-foot a:hover { opacity: 1; text-decoration-thickness: 2px; }
 #app.view-facil .site-foot { display: none; }
+/* "About HoverTime": a quiet collapsed FAQ under the credit line (the text is in the page for search engines either way) */
+.site-faq { width: 100%; max-width: 440px; margin: 0 0 16px; color: var(--bg-ink); font-size: 12px; letter-spacing: .2px; }
+.site-faq summary {
+  width: max-content; margin: 0 auto; padding: 2px 4px; list-style: none; cursor: pointer;
+  font-weight: 500; opacity: .72; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px;
+}
+.site-faq summary::-webkit-details-marker { display: none; }
+.site-faq summary:hover, .site-faq[open] summary { opacity: .85; }
+.site-faq .faq-body { margin-top: 10px; padding: 4px 6px; opacity: .85; line-height: 1.5; }
+.site-faq h2 { margin: 12px 0 2px; font-size: 13px; font-weight: 700; }
+.site-faq p { margin: 0; font-size: 12.5px; }
+#app.view-facil .site-faq { display: none; }
+html[data-theme="8bit"] .site-faq { font-family: var(--vt); font-size: 16px; color: #ffffff; }
+html[data-theme="8bit"] .site-faq h2 { font-size: 17px; }
+html[data-theme="8bit"] .site-faq p { font-size: 16px; }
 /* device fit: no Float where it can't work (phones, tablets); no Facilitate on phone-size screens; no keyboard help on touchscreens */
 html.no-float #btnFloat, html.no-float .guide-float { display: none; }
 #btnFull, .full-only, #btnExitFull { display: none; }
@@ -1459,6 +1502,7 @@ html[data-theme="rain"] .mini-timer .mini-time[data-len="7"] { font-size: 12cqw;
     <header class="panel-head">
       <span class="kicker" id="status"></span>
       <div class="head-actions">
+        <span class="float-brand" aria-hidden="true"><svg viewBox="4.5 1.5 15 21" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.5h12M6 21.5h12M7.5 2.5c0 5 4.5 6.5 4.5 9.5S7.5 16.5 7.5 21.5M16.5 2.5c0 5-4.5 6.5-4.5 9.5s4.5 4.5 4.5 9.5"/></svg>HoverTime</span>
         <button class="btn small" id="btnFloat" type="button" title="Pop the timer into an always-on-top window that stays over full-screen slides">Float</button>
         <button class="btn small" id="btnExitFull" type="button" title="Leave full screen">Exit</button>
         <button class="btn small" id="btnMini" type="button" title="Minimize to a timer icon (click it to bring the timer back)" aria-label="Minimize">–</button>
@@ -1560,6 +1604,23 @@ html[data-theme="rain"] .mini-timer .mini-time[data-len="7"] { font-size: 12cqw;
     </div>
   </section>
   <footer class="site-foot">Made by Karle Delo · <a href="https://linktr.ee/coachkarle" target="_blank" rel="noopener">@coachkarle</a></footer>
+  <details class="site-faq">
+    <summary>About HoverTime</summary>
+    <div class="faq-body">
+      <h2>What is HoverTime?</h2>
+      <p>HoverTime is a free online classroom timer and facilitation timer for teachers, trainers, and anyone leading a workshop or meeting. It runs in the browser with nothing to install, no account, and no ads.</p>
+      <h2>Can HoverTime stay on screen over my slides?</h2>
+      <p>Yes. Float pops the countdown into a small always-on-top window that stays visible over full-screen Google Slides, PowerPoint, Keynote, or Canva presentations, so you never have to switch tabs to check the time. Minimize it to a tiny countdown icon when you want it out of the way. Float works in desktop Chrome and Edge.</p>
+      <h2>What does HoverTime offer for workshops and professional development?</h2>
+      <p>Pair up shows random partner-finding prompts for turn-and-talks and think-pair-share. Rotation splits the time into equal turns with a soft chime at each switch, for partner shares, protocols, and station rotations. Facilitate gives a full-screen view with room for typed or pasted instructions, and gentle cues let the room know when time is almost up.</p>
+      <h2>Does HoverTime have visual timers for elementary teachers?</h2>
+      <p>Yes. Ten vibes include a sand timer, a shrinking-wedge visual timer, a plant that grows and blooms at zero, a sunrise, an 8-bit arcade timer, and a game show timer. Elementary teachers use them so kids can see time passing at a glance, and animations respect your device's reduce-motion setting.</p>
+      <h2>Does HoverTime play music?</h2>
+      <p>Each vibe has original background music for work time, from calm lo-fi to arcade and game show tracks, plus sound cues as time runs down. You can change the volume or turn music off.</p>
+      <h2>Is HoverTime free and private?</h2>
+      <p>HoverTime is completely free. It works on laptops, Chromebooks, interactive whiteboards, tablets, and phones. Your settings stay in your own browser, no student data is collected, and the only tracking is an anonymous, cookie-free visit count.</p>
+    </div>
+  </details>
 </main>
 <div class="toast" id="toast" role="status" hidden></div>
 
@@ -6154,6 +6215,7 @@ const UI = (() => {
   const trackSet = id => Themes.setOf(AudioEngine.Tracks.byId[id]);
   let barFrom = null;                        // {offset, start} for smooth ±1 recalculation
   let lastFrac = 1, lastText = '', lastTitle = '', lastSecond = -1, lastFinal = false;
+  const homeTitle = document.title;          // the descriptive <title>, shown while the timer is idle
 
   /* ---------- rendering ---------- */
   function frac() { return timer.total > 0 ? timer.remaining() / timer.total : 0; }
@@ -6220,7 +6282,7 @@ const UI = (() => {
       r.drawMini(view);
       if (el.miniTime.textContent !== txt) { el.miniTime.textContent = txt; el.miniTime.dataset.len = String(txt.length); }
     }
-    const title = timer.running || timer.finished || rem !== timer.loaded ? `${txt} · Timer` : 'HoverTime';
+    const title = timer.running || timer.finished || rem !== timer.loaded ? `${txt} · Timer` : homeTitle;
     if (title !== lastTitle) { document.title = title; lastTitle = title; }
   }
   /** Share of the border that's gone (0 = full, 1 = empty). `edge` = the share reserved for the final 10 s.
