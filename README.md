@@ -30,4 +30,4 @@ HoverTime is a free classroom and workshop timer that floats over your slides. I
 
 - Float uses Chrome's Document Picture-in-Picture, so it needs desktop Chrome or Edge 116 or newer. Everything else works in any modern browser.
 - It's a single self-contained HTML file. All music and sounds are synthesized live in the browser.
-- Your settings are saved only in your own browser. The page loads its fonts from Google Fonts; nothing else leaves your computer.
+- Your settings are saved only in your own browser. The page loads its fonts from Google Fonts and counts anonymous visits with [GoatCounter](https://www.goatcounter.com) (no cookies, no personal data). Nothing else leaves your computer.
