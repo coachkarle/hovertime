@@ -7133,7 +7133,7 @@ const UI = (() => {
     el.cardBtn.setAttribute('aria-pressed', String(cardOn));
     syncBuilder();
     el.timerMinBtn.textContent = timerMin ? 'Show timer' : 'Hide timer';
-    el.cardTitleText.textContent = cardMode === 'pick' ? 'Choose a card' : cardMode === 'edit' ? 'Editing: ' + cur.title : cur.title;
+    el.cardTitleText.textContent = cardMode === 'pick' ? 'Choose a card' : !cur ? '' : cardMode === 'edit' ? 'Editing: ' + cur.title : cur.title;   // no card open: nothing to title (Full screen renders the card area too)
     el.cardMinBtn.textContent = cardMin ? '+' : '–';
     el.cardMinBtn.title = cardMin ? 'Expand the card' : 'Minimize the card';
     el.cardMinBtn.setAttribute('aria-label', el.cardMinBtn.title);
