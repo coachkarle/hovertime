@@ -444,6 +444,7 @@ body.pip .music-menu.open {
 .card-text .mk.bul { min-width: .55em; }
 .card-back { margin: 4px 6px 2px 0; }
 .card-back b { display: block; font-size: 2em; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.card-back span:empty { display: none; }
 .card-back span { display: block; margin-top: .2em; font-weight: 600; font-variant-numeric: tabular-nums; }
 .card-back + .card-text { margin-top: .5em; }
 .card-pick { display: flex; flex-direction: column; gap: 2px; margin: 6px 6px 0 0; max-height: 280px; overflow-y: auto; }
@@ -1616,8 +1617,8 @@ html.touch .page-grip { display: none !important; }
       <ol class="guide-list">
         <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds. The <b>⋯</b> after the songs plays any other vibe’s music.</span></li>
         <li class="guide-float"><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
-        <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Full screen</b>: the timer beside big directions or your card; drag the divider to resize.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
-        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too) or <b>+ New note</b>; to switch later, <b>Edit</b> → <b>Change card</b>. Click a line to highlight it (<kbd class="keys-only">N</kbd><span class="keys-only"> for the next</span>); double-click or <b>Edit</b> to change it. <b>Break</b> shows when everyone’s back. Delete your own cards with × in the list.</span></li>
+        <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Break</b>: shows the clock time everyone should be back. <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Full screen</b>: the timer beside big directions or your card; drag the divider to resize.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
+        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too) or <b>+ New note</b>; to switch later, <b>Edit</b> → <b>Change card</b>. Click a line to highlight it (<kbd class="keys-only">N</kbd><span class="keys-only"> for the next</span>); double-click or <b>Edit</b> to change it. Delete your own cards with × in the list.</span></li>
         <li><b>Set the time</b><span>Tap or click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>.<span class="keys-only"> Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></span></li>
         <li><b>Make it yours</b><span>⚙ has common school colors, fonts, and palettes.</span></li>
       </ol>
@@ -1625,7 +1626,7 @@ html.touch .page-grip { display: none !important; }
       <dl class="guide-keys">
         <dt><kbd>Space</kbd></dt><dd>Start / pause</dd><dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>±1 minute</dd>
         <dt><kbd>R</kbd></dt><dd>Reset</dd><dt><kbd>M</kbd></dt><dd>Music on / off</dd>
-        <dt><kbd>G</kbd></dt><dd>Pair up prompt</dd><dt><kbd>F</kbd></dt><dd>Full screen</dd>
+        <dt><kbd>G</kbd></dt><dd>Pair up prompt</dd><dt><kbd>B</kbd></dt><dd>Break</dd><dt><kbd>F</kbd></dt><dd>Full screen</dd>
         <dt><kbd>C</kbd></dt><dd>Card on / off</dd><dt><kbd>N</kbd></dt><dd>Highlight the next line</dd>
         <dt><kbd>Esc</kbd></dt><dd>Hide the prompt</dd>
       </dl>
@@ -1697,11 +1698,12 @@ html.touch .page-grip { display: none !important; }
         <button class="btn small" id="btnFloat" type="button" title="Pop the timer into an always-on-top window that stays over full-screen slides">Float</button>
         <button class="btn small" id="btnExitFull" type="button" title="Leave full screen">Exit</button>
         <button class="btn small" id="btnMini" type="button" title="Minimize to a timer icon (click it to bring the timer back)" aria-label="Minimize">–</button>
-        <button class="btn small" id="btnMore" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu" title="Pair up, Rotation, Full screen" aria-label="More options">⋯</button>
+        <button class="btn small" id="btnMore" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu" title="Pair up, Break, Rotation, Full screen" aria-label="More options">⋯</button>
       </div>
     </header>
     <div class="more-menu" id="moreMenu" role="menu" aria-label="More options">
       <button class="btn small" id="btnPrompt" type="button" role="menuitem" title="Show a random partner-finding prompt (G)">Pair up</button>
+      <button class="btn small" id="btnBreak" type="button" role="menuitem" title="A break card: the clock time everyone should be back (B)">Break</button>
       <button class="btn small" id="btnRotation" type="button" role="menuitem" aria-pressed="false" title="Split the time into equal turns, with a soft cue at each switch">Rotation</button>
       <button class="btn small" id="btnFacilitate" type="button" role="menuitem" title="The timer beside big directions or your card, filling the screen (F)">Full screen</button>
       <button class="btn small" id="btnFull" type="button" role="menuitem" title="The timer (and card), filling the screen">Full screen</button>
@@ -1806,7 +1808,7 @@ html.touch .page-grip { display: none !important; }
 
     <p class="hints" id="hints" hidden>
       <kbd>Space</kbd> start/pause · <kbd>↑</kbd><kbd>↓</kbd> ±1 min · <kbd>1</kbd>–<kbd>9</kbd> minutes (<kbd>0</kbd> = 10) ·
-      <kbd>R</kbd> reset · <kbd>M</kbd> music · <kbd>F</kbd> full screen · <kbd>G</kbd> partner prompt · <kbd>C</kbd> card · <kbd>N</kbd> next line · <kbd>Esc</kbd> hide prompt · paste a screenshot
+      <kbd>R</kbd> reset · <kbd>M</kbd> music · <kbd>F</kbd> full screen · <kbd>G</kbd> partner prompt · <kbd>B</kbd> break · <kbd>C</kbd> card · <kbd>N</kbd> next line · <kbd>Esc</kbd> hide prompt · paste a screenshot
     </p>
   </section>
 
@@ -6887,6 +6889,7 @@ const UI = (() => {
     if (k === 'g' || k === 'G') { act.prompt(); return; }
     if (k === 'c' || k === 'C') { setCard(!cardOn); return; }
     if (k === 'n' || k === 'N') { nextLine(); return; }
+    if (k === 'b' || k === 'B') { startBreak(); return; }
     if (k === 'Escape' && (menuOpen() || musicMenuOpen())) { setMenu(false); setMusicMenu(false); return; }
     if (k === 'Escape' && document.body.classList.contains('full')) { exitFull(); return; }
     if (k === 'Escape' && promptActive) { dismissPrompt(); return; }
@@ -7245,7 +7248,7 @@ const UI = (() => {
     if (!cur || cur.kind !== 'break' || cardMode !== 'view') return;
     let a, b;
     if (timer.finished) { a = 'Welcome back'; b = ''; }
-    else { a = 'Back at ' + wallTime(Date.now() + rem); b = rem < 60000 ? 'Under 1 min left' : Math.ceil(rem / 60000) + ' min left'; }
+    else { a = 'Back at ' + wallTime(Date.now() + rem); b = ''; }        // the timer beside it already shows what's left
     const key = a + '|' + b;
     if (key !== lastBack) { lastBack = key; el.backAt.textContent = a; el.backLeft.textContent = b; requestAnimationFrame(fitCard); }
   }
@@ -7347,6 +7350,12 @@ const UI = (() => {
   window.addEventListener('resize', fitCard);
   window.addEventListener('resize', () => requestAnimationFrame(fitClock));
   el.pushBtn.addEventListener('click', () => { pushPref = !cardPushed; renderCard(); });
+  function startBreak() {                                           // ⋯ → Break (or B): the Break card, its 10 minutes loaded (unless the timer is running)
+    setMenu(false);
+    if (!cardOn) { cardOn = true; growFloat(); }
+    loadCard('break');
+  }
+  $('btnBreak').addEventListener('click', startBreak);
 
   /* page size: drag the grip under the timer down to make everything on this page bigger (remembered) */
   const grip = $('pageGrip'), ZOOM_KEY = 'ht-zoom';
@@ -7810,9 +7819,9 @@ const UI = (() => {
     { t: '#modePick', title: 'Pick a vibe', body: 'Ten vibes, from calm Basic to 8-bit, Game Show, and Cozy Rain. Each one brings its own look, music, and sounds, and your choice is remembered.' },
     { t: '#btnFloat', float: true, title: 'Hover over your slides', body: 'The “Hover” in HoverTime: Float pops the timer into a small window that stays on top, even over full-screen Google Slides or PowerPoint, so everyone can see the time while you present. Forgot to set it up? With music on, just switching to your slides can float it automatically (Chrome asks once).' },
     { t: null, wide: true, float: true, title: 'Float, then make it tiny', body: FLOAT_ART + '<span class="tour-note">In the Float window, <b>–</b> shrinks it to a small icon that still counts down. Click the icon to bring it back, and <b>Dock</b> returns it to this page.</span>' },
-    { t: '#btnCard', title: 'Cards: directions that stay up', body: '<b>Card</b> keeps directions on screen with the timer, even over your slides. Pick a ready-made protocol (its time loads too), or jot a quick note. Click a line to highlight where the room is, and double-click to edit. <b>Break</b> shows the time everyone should be back.' },
-    { t: '#btnMore', title: 'Pair up, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> puts the timer beside big directions or your card, and you can paste a screenshot.',
-      small: { title: 'Pair up, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> shows just the timer, big: turn your phone sideways.' } },
+    { t: '#btnCard', title: 'Cards: directions that stay up', body: '<b>Card</b> keeps directions on screen with the timer, even over your slides. Pick a ready-made protocol (its time loads too), or jot a quick note. Click a line to highlight where the room is, and double-click to edit.' },
+    { t: '#btnMore', title: 'Pair up, Break, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Break</b> shows the clock time everyone should be back (or press <b>B</b>). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> puts the timer beside big directions or your card, and you can paste a screenshot.',
+      small: { title: 'Pair up, Break, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Break</b> shows the clock time everyone should be back. <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> shows just the timer, big: turn your phone sideways.' } },
     { t: '#clock', title: 'Set the time', body: 'Click the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then press Enter. Or press <b>1–9</b> for that many minutes (<b>0</b> = 10).',
       touch: 'Tap the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then tap Done.' },
     { t: '.controls', title: 'Start and adjust', body: 'Start or pause with the button or the <b>Space</b> bar. <b>−1</b> and <b>+1</b> change the time by a minute, even while it runs (the ↑ ↓ keys work too).',
