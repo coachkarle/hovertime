@@ -17,11 +17,11 @@
  "description": "A free online classroom and facilitation timer that floats over your slides, with ten visual timer vibes, built-in music, partner-finding prompts, and equal-turn rotations.",
  "isAccessibleForFree": true, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
  "audience": {"@type": "Audience", "audienceType": "Teachers, trainers, facilitators, and meeting leaders"},
- "featureList": ["Always-on-top floating timer over full-screen slides (Chrome and Edge)", "Ten visual timer vibes: Basic, Sand Timer, Wedge, 8-bit, Synthwave, Sunrise, Grow, Game Show, Cozy Rain, Sci-Fi", "Original background music and sound cues", "Pair up: random partner-finding prompts", "Rotation: equal turns with a chime at each switch", "Facilitate: full-screen view with instructions", "No sign-up, no ads, no cookies"],
+ "featureList": ["Always-on-top floating timer over full-screen slides (Chrome and Edge)", "Ten visual timer vibes: Basic, Sand Timer, Wedge, 8-bit, Synthwave, Sunrise, Grow, Game Show, Cozy Rain, Sci-Fi", "Original background music and sound cues", "Pair up: random partner-finding prompts", "Rotation: equal turns with a chime at each switch", "Card: directions and protocols that float with the timer", "Full screen: the timer beside big directions, with a divider you can drag", "No sign-up, no ads, no cookies"],
  "author": {"@type": "Person", "name": "Karle Delo", "url": "https://linktr.ee/coachkarle"}}
 </script>
 <script type="application/ld+json">
-{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is HoverTime?", "acceptedAnswer": {"@type": "Answer", "text": "HoverTime is a free online classroom timer and facilitation timer for teachers, trainers, and anyone leading a workshop or meeting. It runs in the browser with nothing to install, no account, and no ads."}}, {"@type": "Question", "name": "Can HoverTime stay on screen over my slides?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Float pops the countdown into a small always-on-top window that stays visible over full-screen Google Slides, PowerPoint, Keynote, or Canva presentations, so you never have to switch tabs to check the time. Minimize it to a tiny countdown icon when you want it out of the way. Float works in desktop Chrome and Edge."}}, {"@type": "Question", "name": "What does HoverTime offer for workshops and professional development?", "acceptedAnswer": {"@type": "Answer", "text": "Pair up shows random partner-finding prompts for turn-and-talks and think-pair-share. Rotation splits the time into equal turns with a soft chime at each switch, for partner shares, protocols, and station rotations. Facilitate gives a full-screen view with room for typed or pasted instructions, and gentle cues let the room know when time is almost up."}}, {"@type": "Question", "name": "Does HoverTime have visual timers for elementary teachers?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Ten vibes include a sand timer, a shrinking-wedge visual timer, a plant that grows and blooms at zero, a sunrise, an 8-bit arcade timer, and a game show timer. Elementary teachers use them so kids can see time passing at a glance, and animations respect your device's reduce-motion setting."}}, {"@type": "Question", "name": "Does HoverTime play music?", "acceptedAnswer": {"@type": "Answer", "text": "Each vibe has original background music for work time, from calm lo-fi to arcade and game show tracks, plus sound cues as time runs down. You can change the volume or turn music off."}}, {"@type": "Question", "name": "Is HoverTime free and private?", "acceptedAnswer": {"@type": "Answer", "text": "HoverTime is completely free. It works on laptops, Chromebooks, interactive whiteboards, tablets, and phones. Your settings stay in your own browser, no student data is collected, and the only tracking is an anonymous, cookie-free visit count."}}]}
+{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is HoverTime?", "acceptedAnswer": {"@type": "Answer", "text": "HoverTime is a free online classroom timer and facilitation timer for teachers, trainers, and anyone leading a workshop or meeting. It runs in the browser with nothing to install, no account, and no ads."}}, {"@type": "Question", "name": "Can HoverTime stay on screen over my slides?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Float pops the countdown into a small always-on-top window that stays visible over full-screen Google Slides, PowerPoint, Keynote, or Canva presentations, so you never have to switch tabs to check the time. Minimize it to a tiny countdown icon when you want it out of the way. Float works in desktop Chrome and Edge."}}, {"@type": "Question", "name": "What does HoverTime offer for workshops and professional development?", "acceptedAnswer": {"@type": "Answer", "text": "Pair up shows random partner-finding prompts for turn-and-talks and think-pair-share. Rotation splits the time into equal turns with a soft chime at each switch, for partner shares, protocols, and station rotations. Full screen puts the timer beside big typed or pasted instructions or your card, with a divider you can drag, and gentle cues let the room know when time is almost up."}}, {"@type": "Question", "name": "Does HoverTime have visual timers for elementary teachers?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Ten vibes include a sand timer, a shrinking-wedge visual timer, a plant that grows and blooms at zero, a sunrise, an 8-bit arcade timer, and a game show timer. Elementary teachers use them so kids can see time passing at a glance, and animations respect your device's reduce-motion setting."}}, {"@type": "Question", "name": "Does HoverTime play music?", "acceptedAnswer": {"@type": "Answer", "text": "Each vibe has original background music for work time, from calm lo-fi to arcade and game show tracks, plus sound cues as time runs down. You can change the volume or turn music off."}}, {"@type": "Question", "name": "Is HoverTime free and private?", "acceptedAnswer": {"@type": "Answer", "text": "HoverTime is completely free. It works on laptops, Chromebooks, interactive whiteboards, tablets, and phones. Your settings stay in your own browser, no student data is collected, and the only tracking is an anonymous, cookie-free visit count."}}]}
 </script>
 <script data-goatcounter="https://coachkarle.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script>
@@ -405,12 +405,13 @@ body.pip .music-menu.open {
 .card {
   display: flex; flex-direction: column; min-height: 0; margin-top: 10px;
   padding: 6px 6px 10px 12px; border-radius: 10px; background: var(--deep); color: var(--deep-ink); border-left: 3px solid var(--accent);
+  --cf: 19px;                                                          /* the card's text size; Float, Full screen and wide screens fit it to the room */
 }
 .card[hidden] { display: none; }
-.card-head { display: flex; align-items: center; gap: 4px; flex: none; }
+.card-head { display: flex; align-items: flex-start; gap: 4px; flex: none; }
 .card-title {
   flex: 1; min-width: 0; appearance: none; border: 0; background: none; color: inherit; cursor: pointer; text-align: left;
-  font: 800 16px/1.2 var(--font); padding: 5px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font: 800 max(17px, calc(var(--cf) * 1.15))/1.15 var(--font); padding: 4px 0; overflow-wrap: anywhere;   /* the title is never smaller than the steps */
 }
 .card-time { display: none; appearance: none; border: 0; cursor: pointer; background: var(--btn); color: var(--btn-ink); border-radius: 8px;
   font: 800 15px/1 var(--font); font-variant-numeric: tabular-nums; padding: 6px 8px; }
@@ -418,7 +419,7 @@ body.pip .music-menu.open {
 .panel.done.timer-min .card-time { background: var(--urgent); color: var(--on-urgent); }
 .card .btn.ic { width: 28px; height: 28px; padding: 0; display: inline-grid; place-items: center; flex: none; }
 .card .btn.ic svg { width: 15px; height: 15px; }
-.card-body { display: flex; flex-direction: column; min-height: 0; font-size: 17px; }
+.card-body { display: flex; flex-direction: column; min-height: 0; font-size: var(--cf); }
 .card-body[hidden], .card-steps[hidden], .card-back[hidden], .card-pick[hidden], .card-edit[hidden] { display: none; }
 .card-steps { margin: 6px 6px 0 0; padding: 0; list-style: none; counter-reset: st; font-weight: 600; line-height: 1.3; }
 .card-steps li { display: flex; gap: .45em; padding: 1px 6px; margin-left: -6px; border-radius: 6px; cursor: pointer; counter-increment: st; }
@@ -450,20 +451,18 @@ body.pip .music-menu.open {
 .card-edit label input { width: 70px; }
 .card-edit-foot { display: flex; flex-wrap: wrap; gap: 6px; }
 .card-edit-foot [hidden] { display: none; }
-.panel.card-min .card-body, .panel.card-min .card-pick, .panel.card-min .card-edit { display: none; }
-.panel.card-min .card { padding-bottom: 6px; }
+.card.min .card-body, .card.min .card-pick, .card.min .card-edit { display: none; }
+.card.min { padding-bottom: 6px; }
+.card.fill { overflow: hidden; }                                       /* Float, the big panel, wide screens: the card fills its space */
+.card.fill .card-pick, .card.fill .card-edit { flex: 1 1 0; max-height: none; min-height: 0; }
+.card.fill .card-edit textarea { flex: 1 1 0; min-height: 60px; }
 .panel.timer-min .clock-wrap, .panel.timer-min .controls, .panel.timer-min .mini-music, .panel.timer-min .turn-label, .panel.timer-min .prompt-strip { display: none !important; }
 .panel:not(.has-card) #btnTimerMin { display: none; }
-.panel.has-card #btnFull { display: inline-block; }                    /* desktop too: the card + timer, filling the screen */
 #btnCard[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
 /* Float + Full screen: the card takes the room, the timer sits compact below it */
 body.pip .panel.has-card { justify-content: flex-start; height: 100vh; }
 body.pip .panel.card-busy:not(.card-min) .clock-wrap, body.pip .panel.card-busy:not(.card-min) .controls, body.pip .panel.card-busy:not(.card-min) .turn-label { display: none; }   /* choosing or editing: the card gets the whole window for a moment */
 body.pip .panel.has-card:not(.card-min) .card { flex: 1 1 auto; }
-body.pip .panel.has-card:not(.card-min) .card-body { flex: 1 1 0; overflow: hidden; }
-body.pip .panel.has-card:not(.card-min) .card-pick { flex: 1 1 0; max-height: none; }
-body.pip .panel.has-card:not(.card-min) .card-edit textarea { flex: 1 1 0; min-height: 60px; }
-body.pip .panel.has-card:not(.card-min) .card-edit { flex: 1 1 0; min-height: 0; }
 body.pip .panel.has-card:not(.card-min) .clock-wrap { margin: 4px 0 0; padding: 4px 12px 2px; }
 body.pip .panel.has-card:not(.card-min) .clock { font-size: min(14vw, 13vh); }
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min) .clock { font-size: min(7vw, 7vh); }
@@ -1499,6 +1498,60 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
   body.pip .panel.has-card:not(.card-min) .controls { display: none; }
   html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data-theme="wedge"], [data-theme="gameshow"], [data-theme="grow"], [data-theme="scifi"], [data-theme="rain"]) body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock-wrap { flex-basis: 22%; }
 }
+
+/* ---------- Your Float (wide screens): choose what floats; the page shows exactly what the Float window will ---------- */
+.float-build { display: none; }
+.float-build { flex-direction: column; gap: 10px; padding: 2px 18px 4px 0; border-right: 1px solid var(--line); }
+.fb-title { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--soft); }
+.fb-note { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--soft); }
+.fb-toggles { display: flex; flex-direction: column; gap: 6px; }
+.fb-toggles .btn { text-align: left; }
+.float-build .btn.primary { margin-top: 4px; }
+/* wide screens: the card sits beside the timer at Float-style size, instead of above it */
+@media (min-width: 900px) {
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) { max-width: 900px; display: grid; grid-template-columns: 404px minmax(0, 1fr); column-gap: 22px; align-content: start; }
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > * { grid-column: 1; }
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .card { grid-column: 2; grid-row: 1 / span 20; contain: size; margin: 0; min-height: 300px; }
+  body:not(.pip) #app:not(.view-facil) .panel.timer-min > .card { grid-column: 1 / -1; }
+  #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .home-bar { max-width: 900px; }
+  #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .settings.open { top: calc(100% + 6px); left: auto; right: 0; }
+  #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .guide.open { top: calc(100% + 6px); left: 0; right: auto; }
+  #app.settings-open:not(.view-facil):has(> .panel.has-card:not(.card-min)), #app.guide-open:not(.view-facil):has(> .panel.has-card:not(.card-min)) { padding-left: 16px; padding-right: 16px; }
+}
+@media (min-width: 1200px) {
+  body:not(.pip) #app:not(.view-facil) .panel { max-width: 640px; display: grid; grid-template-columns: 170px 404px; column-gap: 22px; align-content: start; }
+  body:not(.pip) #app:not(.view-facil) .panel > *, body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > * { grid-column: 2; }
+  body:not(.pip) #app:not(.view-facil) .panel > .float-build, body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .float-build { display: flex; grid-column: 1; grid-row: 1 / span 20; }
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) { max-width: 1140px; grid-template-columns: 170px 404px minmax(0, 1fr); }
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .card { grid-column: 3; }
+  body:not(.pip) #app:not(.view-facil) .panel.timer-min > .card { grid-column: 2 / -1; }
+  #app:not(.view-facil) .home-bar { max-width: 640px; }
+  #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .home-bar { max-width: 1140px; }
+  .settings.open { top: calc(100% + 6px); left: auto; right: 0; }
+  .guide.open { top: calc(100% + 6px); left: 0; right: auto; }
+  #app.settings-open:not(.view-facil), #app.guide-open:not(.view-facil) { padding-left: 16px; padding-right: 16px; }
+}
+
+/* ---------- Full screen (was Facilitate): drag the divider to resize; the card can go into the big panel ---------- */
+.facil-split { display: none; }
+#app.view-facil { grid-template-columns: var(--split, minmax(270px, 27%)) 14px minmax(0, 1fr); gap: 0 4px; }
+#app.view-facil > .panel { grid-column: 1; grid-row: 1; }
+#app.view-facil > .facil-split { display: block; grid-column: 2; grid-row: 1; position: relative; cursor: col-resize; touch-action: none; border-radius: 7px; }
+.facil-split::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 56px; margin: -28px 0 0 -2px; border-radius: 2px; background: var(--bg-ink); opacity: .35; transition: opacity .15s, height .15s, margin .15s; }
+.facil-split:hover::after, .facil-split:focus-visible::after, .facil-split.drag::after { opacity: .9; height: 96px; margin-top: -48px; }
+.facil-split:focus-visible { outline-offset: -2px; }
+#app.view-facil > .instructions { grid-column: 3; grid-row: 1; }
+html body #app.view-facil .instructions.pushed { background: transparent; box-shadow: none; padding: 0; border-radius: 0; }
+.instructions.pushed::before { display: none; }
+.instructions.pushed #instrText, .instructions.pushed #instrImg, .instructions.pushed #btnClear { display: none !important; }
+.instr-body > .card { flex: 1; min-width: 0; margin: 0; }
+.instructions.prompting .card { display: none; }
+#btnCardPush { display: none; }
+#app.view-facil #btnCardPush { display: inline-grid; }
+/* Float with a card: the vibes that need a different short layout (same as with a Pair up prompt) */
+html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock { font-size: min(8vw, 9vh); }
+html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock-wrap { padding: 18px 16px 14px; margin: 8px 0 4px; }
+html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock { width: 62%; margin-left: auto; font-size: min(62cqh, 11cqw) !important; }
 </style>
 </head>
 <body>
@@ -1518,7 +1571,7 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
       <ol class="guide-list">
         <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds.</span></li>
         <li class="guide-float"><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
-        <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Facilitate</b>: full screen with room for instructions.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
+        <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Full screen</b>: the timer beside big directions or your card; drag the divider to resize.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
         <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too), edit it live, or write your own. <b>Break</b> shows when everyone’s back.</span></li>
         <li><b>Set the time</b><span>Tap or click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>.<span class="keys-only"> Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></span></li>
         <li><b>Make it yours</b><span>⚙ has common school colors, fonts, and palettes.</span></li>
@@ -1527,7 +1580,7 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
       <dl class="guide-keys">
         <dt><kbd>Space</kbd></dt><dd>Start / pause</dd><dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>±1 minute</dd>
         <dt><kbd>R</kbd></dt><dd>Reset</dd><dt><kbd>M</kbd></dt><dd>Music on / off</dd>
-        <dt><kbd>G</kbd></dt><dd>Pair up prompt</dd><dt><kbd>F</kbd></dt><dd>Facilitate view</dd>
+        <dt><kbd>G</kbd></dt><dd>Pair up prompt</dd><dt><kbd>F</kbd></dt><dd>Full screen</dd>
         <dt><kbd>C</kbd></dt><dd>Card on / off</dd><dt><kbd>N</kbd></dt><dd>Highlight the next step</dd>
         <dt><kbd>Esc</kbd></dt><dd>Hide the prompt</dd>
       </dl>
@@ -1564,6 +1617,17 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
 
   <section id="panel" class="panel" aria-label="Activity timer">
     <canvas class="fx" id="fx" aria-hidden="true"></canvas>
+    <aside class="float-build" id="floatBuild" aria-label="Your Float">
+      <p class="fb-title">Your Float</p>
+      <p class="fb-note">Choose what shows. Float and Full screen show it just like this.</p>
+      <div class="fb-toggles">
+        <button class="btn small" id="fbTimer" type="button" aria-pressed="true" title="Show the timer (it can hide when a card is open)">Timer</button>
+        <button class="btn small" id="fbCard" type="button" aria-pressed="false" title="Directions or a protocol (C)">Card</button>
+        <button class="btn small" id="fbPair" type="button" aria-pressed="false" title="A random partner prompt (G)">Pair up</button>
+      </div>
+      <button class="btn primary" id="fbFloat" type="button" title="Pop it into an always-on-top window over your slides">Float</button>
+      <button class="btn small" id="fbFull" type="button" title="Fill the screen (F)">Full screen</button>
+    </aside>
     <button class="mini-timer" id="miniTimer" type="button" title="Open the timer" aria-label="Open the timer">
       <svg class="mini-ring" viewBox="0 0 100 100" aria-hidden="true"><circle class="track" cx="50" cy="50" r="45"/><circle class="arc" id="miniArc" cx="50" cy="50" r="45" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0"/></svg>
       <canvas class="mini-blocks" id="miniBlocks" aria-hidden="true"></canvas>
@@ -1588,13 +1652,13 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
         <button class="btn small" id="btnFloat" type="button" title="Pop the timer into an always-on-top window that stays over full-screen slides">Float</button>
         <button class="btn small" id="btnExitFull" type="button" title="Leave full screen">Exit</button>
         <button class="btn small" id="btnMini" type="button" title="Minimize to a timer icon (click it to bring the timer back)" aria-label="Minimize">–</button>
-        <button class="btn small" id="btnMore" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu" title="Pair up, Rotation, Facilitate" aria-label="More options">⋯</button>
+        <button class="btn small" id="btnMore" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu" title="Pair up, Rotation, Full screen" aria-label="More options">⋯</button>
       </div>
     </header>
     <div class="more-menu" id="moreMenu" role="menu" aria-label="More options">
       <button class="btn small" id="btnPrompt" type="button" role="menuitem" title="Show a random partner-finding prompt (G)">Pair up</button>
       <button class="btn small" id="btnRotation" type="button" role="menuitem" aria-pressed="false" title="Split the time into equal turns, with a soft cue at each switch">Rotation</button>
-      <button class="btn small" id="btnFacilitate" type="button" role="menuitem" title="Full-screen view with room for instructions (F)">Facilitate</button>
+      <button class="btn small" id="btnFacilitate" type="button" role="menuitem" title="The timer beside big directions or your card, filling the screen (F)">Full screen</button>
       <button class="btn small" id="btnFull" type="button" role="menuitem" title="The timer (and card), filling the screen">Full screen</button>
       <button class="btn small" id="btnTimerMin" type="button" role="menuitem" title="Show only the card, with the time beside its title">Hide timer</button>
     </div>
@@ -1605,6 +1669,7 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
         <button class="card-time" id="cardTime" type="button" title="Show the timer">5:00</button>
         <button class="btn small ic" id="btnCardPick" type="button" aria-pressed="false" title="Choose a card" aria-label="Choose a card"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <button class="btn small ic" id="btnCardEdit" type="button" aria-pressed="false" title="Edit this card" aria-label="Edit this card"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg></button>
+        <button class="btn small ic" id="btnCardPush" type="button" title="Show the card in the big panel" aria-label="Show the card in the big panel"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
         <button class="btn small ic" id="btnCardMin" type="button" title="Minimize the card" aria-label="Minimize the card">–</button>
         <button class="btn small ic" id="btnCardClose" type="button" title="Close the card (C)" aria-label="Close the card">×</button>
       </div>
@@ -1693,7 +1758,7 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
 
     <p class="hints" id="hints" hidden>
       <kbd>Space</kbd> start/pause · <kbd>↑</kbd><kbd>↓</kbd> ±1 min · <kbd>1</kbd>–<kbd>9</kbd> minutes (<kbd>0</kbd> = 10) ·
-      <kbd>R</kbd> reset · <kbd>M</kbd> music · <kbd>F</kbd> facilitate · <kbd>G</kbd> partner prompt · <kbd>C</kbd> card · <kbd>N</kbd> next step · <kbd>Esc</kbd> hide prompt · paste a screenshot
+      <kbd>R</kbd> reset · <kbd>M</kbd> music · <kbd>F</kbd> full screen · <kbd>G</kbd> partner prompt · <kbd>C</kbd> card · <kbd>N</kbd> next step · <kbd>Esc</kbd> hide prompt · paste a screenshot
     </p>
   </section>
 
@@ -1714,6 +1779,7 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
       </div>
     </div>
   </section>
+  <div class="facil-split" id="facilSplit" role="separator" aria-orientation="vertical" aria-label="Resize the panels (arrow keys; double-click to reset)" tabindex="0"></div>
   <footer class="site-foot">Made by Karle Delo · <a href="https://linktr.ee/coachkarle" target="_blank" rel="noopener">@coachkarle</a></footer>
   <details class="site-faq">
     <summary>About HoverTime</summary>
@@ -1723,7 +1789,7 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
       <h2>Can HoverTime stay on screen over my slides?</h2>
       <p>Yes. Float pops the countdown into a small always-on-top window that stays visible over full-screen Google Slides, PowerPoint, Keynote, or Canva presentations, so you never have to switch tabs to check the time. Minimize it to a tiny countdown icon when you want it out of the way. Float works in desktop Chrome and Edge.</p>
       <h2>What does HoverTime offer for workshops and professional development?</h2>
-      <p>Pair up shows random partner-finding prompts for turn-and-talks and think-pair-share. Rotation splits the time into equal turns with a soft chime at each switch, for partner shares, protocols, and station rotations. Facilitate gives a full-screen view with room for typed or pasted instructions, and gentle cues let the room know when time is almost up.</p>
+      <p>Pair up shows random partner-finding prompts for turn-and-talks and think-pair-share. Rotation splits the time into equal turns with a soft chime at each switch, for partner shares, protocols, and station rotations. Full screen puts the timer beside big typed or pasted instructions or your card, with a divider you can drag, and gentle cues let the room know when time is almost up.</p>
       <h2>Can I show directions or a protocol with the timer?</h2>
       <p>Yes. Card keeps directions on screen with the timer, in Float over your slides or full screen. Choose a ready-made protocol like Most Important Point, 3-2-1, or What? So What? Now What?, and its suggested time loads too. Edit any card on the fly, or write and save your own. The Break card shows the clock time everyone should be back. Your cards are saved only in your own browser.</p>
       <h2>Does HoverTime have visual timers for elementary teachers?</h2>
@@ -6666,7 +6732,7 @@ const UI = (() => {
     el.promptText.textContent = txt; el.promptView.hidden = false;
     el.instr.classList.add('prompting');
     el.promptNext.hidden = el.promptDone.hidden = false; el.clear.hidden = true;
-    requestAnimationFrame(fitPrompt);
+    requestAnimationFrame(fitPrompt); syncBuilder();
   }
   function dismissPrompt() {
     if (!promptActive) return;
@@ -6674,7 +6740,7 @@ const UI = (() => {
     el.promptStrip.hidden = true; el.promptView.hidden = true;
     el.instr.classList.remove('prompting');
     el.promptNext.hidden = el.promptDone.hidden = true; el.clear.hidden = false;
-    requestAnimationFrame(fitText);
+    requestAnimationFrame(fitText); syncBuilder(); requestAnimationFrame(fitCard);
   }
   function fitStrip() {                              // the Pair up strip never runs past two lines: step the type down until it fits
     const t = el.promptStripText; t.style.fontSize = '';
@@ -6717,6 +6783,7 @@ const UI = (() => {
   Object.assign(el, { card: $('card'), cardBtn: $('btnCard'), cardTitle: $('cardTitle'), cardTime: $('cardTime'), cardBody: $('cardBody'), cardSteps: $('cardSteps'),
     cardBack: $('cardBack'), backAt: $('backAt'), backLeft: $('backLeft'), cardPick: $('cardPick'), cardEdit: $('cardEdit'),
     pickBtn: $('btnCardPick'), editBtn: $('btnCardEdit'), cardMinBtn: $('btnCardMin'), timerMinBtn: $('btnTimerMin'),
+    pushBtn: $('btnCardPush'), fbTimer: $('fbTimer'), fbCard: $('fbCard'), fbPair: $('fbPair'),
     editTitle: $('editTitle'), editSteps: $('editSteps'), editMin: $('editMin'), editRestore: $('btnEditRestore'), editDelete: $('btnEditDelete') });
   const CARDS_KEY = 'ht-cards';
   const cleanCard = c => ({ title: String(c.title || '').trim().slice(0, 80) || 'Untitled', min: Math.max(0, Math.min(180, Math.round(+c.min || 0))),
@@ -6739,7 +6806,18 @@ const UI = (() => {
   const clockFmt = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' });
   const wallTime = ms => clockFmt.formatToParts(new Date(ms)).filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();   // "10:42"
 
+  /* Full screen: the card can sit in the big panel instead of beside the timer (remembered for next time) */
+  let cardPushed = false, pushPref = false;
+  function placeCard() {
+    const want = cardOn && pushPref && el.app.classList.contains('view-facil');
+    if (want && !cardPushed) { el.instr.querySelector('.instr-body').appendChild(el.card); cardPushed = true; }
+    else if (!want && cardPushed) { el.panel.insertBefore(el.card, el.clockWrap); cardPushed = false; }
+    el.instr.classList.toggle('pushed', cardPushed);
+    const t = cardPushed ? 'Put the card back beside the timer' : 'Show the card in the big panel';
+    el.pushBtn.title = t; el.pushBtn.setAttribute('aria-label', t); el.pushBtn.setAttribute('aria-pressed', String(cardPushed));
+  }
   function renderCard() {
+    placeCard();
     cur = cardId ? cardById(cardId) : null;
     if (!cur && cardOn && cardMode === 'view') cardMode = 'pick';
     el.panel.classList.toggle('has-card', cardOn);
@@ -6747,7 +6825,9 @@ const UI = (() => {
     el.panel.classList.toggle('timer-min', cardOn && timerMin);
     el.panel.classList.toggle('card-busy', cardOn && cardMode !== 'view');
     el.card.hidden = !cardOn;
+    el.card.classList.toggle('min', cardMin);
     el.cardBtn.setAttribute('aria-pressed', String(cardOn));
+    syncBuilder();
     el.timerMinBtn.textContent = timerMin ? 'Show timer' : 'Hide timer';
     el.cardTitle.textContent = cardMode === 'pick' ? 'Choose a card' : cardMode === 'edit' ? 'Edit card' : cur.title;
     el.cardTitle.setAttribute('aria-expanded', String(!cardMin));
@@ -6788,17 +6868,28 @@ const UI = (() => {
       return b;
     }), item('+ New card', '', newCard, 'new'));
   }
-  /** big, readable text in Float and Full screen: the largest size that fits the room the card has */
-  function fitCard() {
-    const b = el.cardBody; b.style.fontSize = '';
-    if (!cardOn || cardMin || cardMode !== 'view' || !b.offsetHeight || !el.panel.ownerDocument.body.classList.contains('pip')) return;
-    let lo = 12, hi = 64;
-    while (hi - lo > 1) {
-      const mid = (lo + hi) >> 1; b.style.fontSize = mid + 'px';
-      if (b.scrollHeight > b.clientHeight + 1 || b.scrollWidth > b.clientWidth + 1) hi = mid; else lo = mid;
-    }
-    b.style.fontSize = lo + 'px';
+  /** Float, the big panel, and wide screens: the card fills its space and its text takes the largest size that fits */
+  const wideCard = matchMedia('(min-width: 900px)');
+  function cardFill() {
+    if (!cardOn) return 0;
+    if (cardPushed) return 150;
+    if (el.card.ownerDocument.body.classList.contains('pip')) return 72;
+    if (wideCard.matches && !el.app.classList.contains('view-facil')) return 44;
+    return 0;
   }
+  function fitCard() {
+    const c = el.card, max = cardFill();
+    c.classList.toggle('fill', !!max && !cardMin);
+    c.style.removeProperty('--cf');
+    if (!max || cardMin || cardMode !== 'view' || !c.offsetHeight) return;
+    let lo = 12, hi = max;
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1; c.style.setProperty('--cf', mid + 'px');
+      if (c.scrollHeight > c.clientHeight + 1 || c.scrollWidth > c.clientWidth + 1) hi = mid; else lo = mid;
+    }
+    c.style.setProperty('--cf', lo + 'px');
+  }
+  wideCard.addEventListener('change', () => requestAnimationFrame(fitCard));
   /** each frame (from render): the time beside the title when the timer is hidden, and Break's "Back at" clock */
   function cardTick(rem, txt) {
     if (!cardOn) return;
@@ -6878,6 +6969,42 @@ const UI = (() => {
   });
   function nextStep() { if (cardOn && cur && cardMode === 'view' && cur.steps.length) { stepOn = (stepOn + 1) % (cur.steps.length + 1); if (stepOn === cur.steps.length) stepOn = -1; renderCard(); } }
   window.addEventListener('resize', fitCard);
+  el.pushBtn.addEventListener('click', () => { pushPref = !cardPushed; renderCard(); });
+
+  /* Your Float (wide screens): what you see beside it is what floats */
+  function syncBuilder() {
+    el.fbCard.setAttribute('aria-pressed', String(cardOn));
+    el.fbTimer.setAttribute('aria-pressed', String(!(cardOn && timerMin)));
+    el.fbTimer.disabled = !cardOn;                                  // with no card, the timer always shows
+    el.fbPair.setAttribute('aria-pressed', String(promptActive));
+  }
+  el.fbCard.addEventListener('click', () => setCard(!cardOn));
+  el.fbTimer.addEventListener('click', () => { if (!cardOn) return; timerMin = !timerMin; if (timerMin) cardMin = false; renderCard(); });
+  el.fbPair.addEventListener('click', () => { promptActive ? dismissPrompt() : showPrompt(); });
+  $('fbFloat').addEventListener('click', () => openFloat());
+  $('fbFull').addEventListener('click', () => enterFacil());
+
+  /* Full screen: drag the divider (or use the arrow keys) to size the two sides; double-click resets. Remembered. */
+  const split = $('facilSplit'), SPLIT_KEY = 'ht-split';
+  let splitFrac = null, splitRaf = 0;
+  try { const v = parseFloat(localStorage.getItem(SPLIT_KEY)); if (v > 0.1 && v < 0.85) splitFrac = v; } catch (e) {}
+  const clampSplit = px => Math.max(240, Math.min(innerWidth * 0.75, px));
+  function applySplit() { if (splitFrac) el.app.style.setProperty('--split', Math.round(clampSplit(splitFrac * innerWidth)) + 'px'); else el.app.style.removeProperty('--split'); }
+  function afterSplit() { cancelAnimationFrame(splitRaf); splitRaf = requestAnimationFrame(() => { fitText(); fitPrompt(); fitCard(); theme().renderer.invalidate(); }); }
+  function setSplitPx(px) { splitFrac = clampSplit(px) / innerWidth; applySplit(); afterSplit(); }
+  const saveSplit = () => { try { if (splitFrac) localStorage.setItem(SPLIT_KEY, String(splitFrac)); else localStorage.removeItem(SPLIT_KEY); } catch (e) {} };
+  split.addEventListener('pointerdown', e => { e.preventDefault(); split.setPointerCapture(e.pointerId); split.classList.add('drag'); });
+  split.addEventListener('pointermove', e => { if (split.classList.contains('drag')) setSplitPx(e.clientX - el.panel.getBoundingClientRect().left - split.offsetWidth / 2); });
+  const endSplit = () => { if (!split.classList.contains('drag')) return; split.classList.remove('drag'); saveSplit(); };
+  split.addEventListener('pointerup', endSplit); split.addEventListener('pointercancel', endSplit);
+  split.addEventListener('dblclick', () => { splitFrac = null; saveSplit(); applySplit(); afterSplit(); });
+  split.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault(); e.stopPropagation();
+    setSplitPx(el.panel.getBoundingClientRect().width + (e.key === 'ArrowRight' ? 32 : -32)); saveSplit();
+  });
+  window.addEventListener('resize', applySplit);
+  applySplit();
 
   el.help.addEventListener('click', () => {
     el.hints.hidden = !el.hints.hidden;
@@ -7064,10 +7191,12 @@ const UI = (() => {
     el.app.classList.add('view-facil');
     const de = document.documentElement;
     if (!document.fullscreenElement && de.requestFullscreen) de.requestFullscreen().catch(() => {});
-    requestAnimationFrame(() => { fitText(); fitPrompt(); });
+    renderCard();
+    requestAnimationFrame(() => { fitText(); fitPrompt(); fitCard(); theme().renderer.invalidate(); });
   }
   function exitFacil() {
     el.app.classList.remove('view-facil');
+    renderCard(); requestAnimationFrame(() => { theme().renderer.invalidate(); });
     if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
   }
   function toggleFacil() { el.app.classList.contains('view-facil') ? exitFacil() : enterFacil(); }
@@ -7092,6 +7221,7 @@ const UI = (() => {
   function showImage(blob) {
     if (imgURL) URL.revokeObjectURL(imgURL);
     dismissPrompt();
+    if (cardPushed) { pushPref = false; renderCard(); }
     imgURL = URL.createObjectURL(blob);
     el.img.src = imgURL; el.img.hidden = false; el.text.hidden = true;
     if (!el.app.classList.contains('view-facil')) enterFacil();
@@ -7110,6 +7240,7 @@ const UI = (() => {
     if (text) {
       e.preventDefault();
       dismissPrompt();
+      if (cardPushed) { pushPref = false; renderCard(); }
       el.img.hidden = true; el.text.hidden = false; el.text.value = text;
       if (!el.app.classList.contains('view-facil')) enterFacil();
       requestAnimationFrame(fitText);
@@ -7271,7 +7402,7 @@ const UI = (() => {
     { t: '#modePick', title: 'Pick a vibe', body: 'Ten vibes, from calm Basic to 8-bit, Game Show, and Cozy Rain. Each one brings its own look, music, and sounds, and your choice is remembered.' },
     { t: '#btnFloat', float: true, title: 'Hover over your slides', body: 'The “Hover” in HoverTime: Float pops the timer into a small window that stays on top, even over full-screen Google Slides or PowerPoint, so everyone can see the time while you present. Forgot to set it up? With music on, just switching to your slides can float it automatically (Chrome asks once).' },
     { t: null, wide: true, float: true, title: 'Float, then make it tiny', body: FLOAT_ART + '<span class="tour-note">In the Float window, <b>–</b> shrinks it to a small icon that still counts down. Click the icon to bring it back, and <b>Dock</b> returns it to this page.</span>' },
-    { t: '#btnMore', title: 'Pair up, Rotation, Facilitate', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Facilitate</b> goes full screen with room for instructions, and you can paste a screenshot.',
+    { t: '#btnMore', title: 'Pair up, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> puts the timer beside big directions or your card, and you can paste a screenshot.',
       small: { title: 'Pair up, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> shows just the timer, big: turn your phone sideways.' } },
     { t: '#clock', title: 'Set the time', body: 'Click the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then press Enter. Or press <b>1–9</b> for that many minutes (<b>0</b> = 10).',
       touch: 'Tap the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then tap Done.' },

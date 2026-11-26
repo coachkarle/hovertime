@@ -10,8 +10,9 @@ HoverTime is a free classroom and workshop timer that floats over your slides. I
 
 - **Float over your slides:** pops the timer into a small always-on-top window, even over full-screen Google Slides or PowerPoint. Minimize it to a tiny icon, and dock it back anytime. With music on, Chrome can float it automatically when you switch to your slides.
 - **Card:** directions that stay on screen with the timer, in Float or full screen. Pick a ready-made protocol (Most Important Point, 3-2-1, What? So What? Now What?, and more) and its time loads too. Edit any card on the fly or save your own. **Break** shows the clock time everyone should be back. Minimize the card or the timer when you need the room.
+- **Your Float (wide screens):** a panel beside the timer to choose what shows (Timer, Card, Pair up). The card sits beside the timer, and Float and Full screen show it just like that.
 - **Ten vibes:** Basic, Sand Timer, Wedge, 8-bit, Synthwave, Sunrise, Grow, Game Show, Cozy Rain, and Sci-Fi. Each has its own look, original music, and sound cues.
-- **Pair up, Rotation, Facilitate:** random partner prompts, equal turns with a chime at each switch, and a full-screen view with room for instructions.
+- **Pair up, Rotation, Full screen:** random partner prompts, equal turns with a chime at each switch, and a full-screen view with the timer beside big directions or your card. Drag the divider to size the two sides.
 - **Make it yours:** color presets (including common school colors), fonts, and palettes.
 - **Accessible:** text meets WCAG AA contrast, and animations respect "reduce motion".
 
@@ -27,7 +28,7 @@ HoverTime is a free classroom and workshop timer that floats over your slides. I
 | G | Pair up prompt |
 | C | Card on / off |
 | N | Highlight the next step |
-| F | Facilitate view |
+| F | Full screen |
 
 ## Notes
 
