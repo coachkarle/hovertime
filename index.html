@@ -2446,12 +2446,13 @@ const Tracks = (() => {
   });
 
   /* =========================================================
-     TRACK 1: LO-FI (80 BPM, C major, soft tape-synth chords over a dusty groove)
+     TRACK 1: LO-FI (86 BPM, C major, soft tape-synth chords over a dusty groove, with an electric-piano melody
+     that comes and goes in 8-bar sections so the song has a shape instead of one long loop)
      ========================================================= */
   const lofi = {
-    id: 'lofi', name: 'Lo-fi', bpm: 80, tonic: 72, trim: 2.0,
+    id: 'lofi', name: 'Lo-fi', bpm: 86, tonic: 72, trim: 1.87,
     create(ctx, out, R, L, startStep = 0) {
-      const H = helpers(R), S = L.scope(), s16 = 60 / 80 / 4;
+      const H = helpers(R), S = L.scope(), s16 = 60 / 86 / 4;
       const swing = (2 * 0.57 - 1) * s16;
       const sw = k => (k % 2 ? swing : 0);
       const hum = ms => (R() * 2 - 1) * ms / 1000;
@@ -2469,18 +2470,25 @@ const Tracks = (() => {
       L.chain(drums, dSat, dLP, out); dLP.connect(dSend); dSend.connect(verb.input);
       S.lfo(dLP.frequency, 0.037, 1300);
       const bassBus = S.gain(0.3), bLP = S.filter('lowpass', 520, 0.6); L.chain(bassBus, bLP, out);
-      S.crackle(out, 0.3, 6);
-      S.hiss(out, 0.007, { hp: 1000, lp: 8000 });
+      S.crackle(out, 0.22, 6);                          // a little less dust, so the music sits in front
+      S.hiss(out, 0.005, { hp: 1000, lp: 8000 });
+      // melody: a warm electric piano an octave above the chords, with its own touch of room
+      const lead = S.gain(1), lLP = S.filter('lowpass', 3400, 0.6), lSend = S.gain(0.3);
+      L.chain(lead, lLP, out); lLP.connect(lSend); lSend.connect(verb.input);
+      const MEL = [64, 67, 69, 72, 74, 76, 79, 81, 84];   // C major pentatonic, E4–C6
+      const RHY = [[0, 3, 6, 10], [2, 4, 8, 11, 14], [0, 2, 6, 8, 12], [3, 6, 10], [0, 6, 8, 11]];   // 16th positions for one bar
+      const history = [];
+      let melody = false, shaker = false, call = null;
 
       // consonant voicings: a clean triad over the bass note (no half-step rubs anywhere)
       const Fmaj7 = { b: 41, v: [57, 60, 64] }, Em7 = { b: 40, v: [55, 59, 62] }, Dm7 = { b: 38, v: [57, 60, 65] };
       const Cmaj7 = { b: 36, v: [55, 59, 64] }, Am7 = { b: 45, v: [55, 60, 64] }, G = { b: 43, v: [55, 59, 62] };
       const A = [Fmaj7, Em7, Dm7, Cmaj7], B = [Dm7, G, Cmaj7, Am7], C = [Am7, Fmaj7, Cmaj7, G];
       let bank = A, prevV = null;
-      let noBeat = 0, noHats = 0, cur = A[0], kv = 0, ghostP = 0.12, quick = false, turn = false;
+      let noBeat = 0, noHats = 0, cur = A[0], kv = 0, ghostP = 0.12, quick = false, turn = false, fillBar = -1;
       const TURN = [G, Dm7, Em7];
       const KICKS = [[0, 7, 10], [0, 10], [0, 7, 10, 13], [0, 3, 10]];
-      const KEYS_LEVEL = 0.03, TOUCH_LEVEL = 0.057;
+      const KEYS_LEVEL = 0.034, TOUCH_LEVEL = 0.06;
 
       function onBar(bar, t) {
         const cycleBar = bar % 8;
@@ -2511,6 +2519,20 @@ const Tracks = (() => {
         if (H.chance(0.7)) L.bass(bassBus, root, bt + 7 * s16 + sw(7), 2.5 * s16, 0.6);
         L.bass(bassBus, H.chance(0.6) ? fifth : root, bt + 10 * s16, 5 * s16, 0.75);
         if (bar % 4 === 0) { kv = H.chance(0.55) ? 0 : 1 + Math.floor(R() * 3); ghostP = H.rr(0.06, 0.22); }
+        // sections: an 8-bar intro, then the melody comes and goes every 8 bars (a shaker joins some sections)
+        if (bar % 8 === 0) { melody = bar >= 8 && (melody ? H.chance(0.45) : H.chance(0.8)); shaker = bar >= 8 && H.chance(0.5); }
+        if (melody) {
+          const sc = H.fit(MEL, [...cur.v, cur.b]);
+          if (bar % 2 === 0) {                            // the call: a 4–5 note phrase
+            const pos = H.pick(RHY), notes = H.phrase(sc, pos.length, Math.min(sc.length - 1, 2 + Math.floor(R() * 3)), history);
+            call = notes;
+            notes.forEach((m, k) => { const p = pos[k], len = (pos[k + 1] ?? 16) - p; L.rhodes(lead, m, t + p * s16 + sw(p) + hum(6), Math.min(len, 4) * s16, H.rr(0.5, 0.62), { level: 0.075, bark: 0.35, tine: 0.32, decay: 1.3, release: 0.2 }); });
+          } else if (call && H.chance(0.7)) {             // the answer: echoes the end of the call, then settles on a chord tone
+            const land = H.pick(sc.filter(n => cur.v.some(c => (c - n) % 12 === 0)).concat(sc[2]));
+            [[2, call[call.length - 2] ?? land], [6, call[call.length - 1] ?? land], [8, land]].forEach(([p, m], k) =>
+              L.rhodes(lead, m, t + p * s16 + sw(p) + hum(6), (k === 2 ? 6 : 2) * s16, H.rr(0.42, 0.55), { level: 0.075, bark: 0.35, tine: 0.32, decay: 1.3, release: 0.25 }));
+          }
+        }
         if (noBeat > 0) noBeat--; if (noHats > 0) noHats--;
       }
 
@@ -2525,7 +2547,10 @@ const Tracks = (() => {
             if (s === 4 || s === 12) L.snare(drums, tt + 0.012 + hum(3), H.rr(0.8, 0.95), { freq: 1900, decay: 0.16, lp: 5200, level: 0.21 });
             if (s === 15 && H.chance(0.5)) L.snare(drums, tt + 0.01, H.rr(0.15, 0.25), { freq: 2100, decay: 0.08, lp: 5200, level: 0.21 });
             if (var4 && s === 10 && H.chance(0.3)) L.snare(drums, tt + 0.01, 0.2, { freq: 2100, decay: 0.08, lp: 5200, level: 0.21 });
+            if (bar % 8 === 7 && s >= 13 && fillBar === bar) L.snare(drums, tt + 0.008, 0.22 + (s - 13) * 0.1, { freq: 2100, decay: 0.07, lp: 5600, level: 0.21 });   // a small fill into the next section
           }
+          if (s === 0 && bar % 8 === 7) fillBar = H.chance(0.55) ? bar : -1;
+          if (shaker && beat && s % 2 === 1) L.shaker(drums, tt + hum(4), s % 4 === 3 ? 0.5 : 0.32, { level: 0.08 });
           if (noHats === 0) {
             const open = bar % 5 === 4 && s === 14;
             if (s % 2 === 0) L.hat(drums, tt + hum(5), (s % 4 === 0 ? 0.55 : 0.36) + hum(80), { lp: 8500, decay: open ? 0.16 : 0.045, level: 0.21 });
@@ -2538,12 +2563,12 @@ const Tracks = (() => {
   };
 
   /* =========================================================
-     TRACK 2: OFF-BEAT (88 BPM, Eb, loose drums + a mellow, steady electric piano)
+     TRACK 2: OFF-BEAT (94 BPM, Eb, loose drums + a mellow electric piano, with a vibraphone melody in some sections)
      ========================================================= */
   const offbeat = {
-    id: 'offbeat', name: 'Off-beat', bpm: 88, tonic: 75, trim: 1.44,
+    id: 'offbeat', name: 'Off-beat', bpm: 94, tonic: 75, trim: 1.39,
     create(ctx, out, R, L, startStep = 0) {
-      const H = helpers(R), S = L.scope(), s16 = 60 / 88 / 4;
+      const H = helpers(R), S = L.scope(), s16 = 60 / 94 / 4;
       const swingAt = (pct, k) => (k % 2 ? (2 * pct - 1) * s16 : 0);
       const hum = ms => (R() * 2 - 1) * ms / 1000;
 
@@ -2557,8 +2582,13 @@ const Tracks = (() => {
       L.chain(drums, dLP, out); dLP.connect(dSend); dSend.connect(verb.input);
       S.lfo(dLP.frequency, 0.029, 1500);
       const bassBus = S.gain(0.4), bLP = S.filter('lowpass', 700, 0.6); L.chain(bassBus, bLP, out);
-      S.crackle(out, 0.18, 3.5);
-      S.hiss(out, 0.0045, { hp: 1500, lp: 9000 });
+      S.crackle(out, 0.14, 3.5);
+      S.hiss(out, 0.0035, { hp: 1500, lp: 9000 });
+      const lead = S.gain(1), lSend = S.gain(0.28); lead.connect(out); lead.connect(lSend); lSend.connect(verb.input);
+      const MEL = [67, 70, 72, 75, 77, 79, 82, 84, 87];   // Eb major pentatonic, G4–Eb6
+      const RHY = [[0, 3, 6, 10, 12], [2, 6, 8, 14], [0, 2, 4, 10], [3, 6, 11, 14], [0, 4, 7, 10]];
+      const history = [];
+      let melody = false, call = null, fillBar = -1;
 
       // consonant voicings: a clean triad over the bass note
       const PROG = [
@@ -2600,6 +2630,20 @@ const Tracks = (() => {
         L.bass(bassBus, H.chance(0.5) ? cur.b + 12 : cur.b + 7, bt + 10 * s16, 2 * s16, 0.7, { saw: 0.35, lp: 700 });
         const approach = H.chance(0.5) ? next.b : cur.b + 7;   // chord tones only (no chromatic passing notes)
         L.bass(bassBus, approach, bt + 14 * s16 + swingAt(0.55, 14), 1.6 * s16, 0.6, { saw: 0.35, lp: 700 });
+        // sections: chords-only for the first 8 bars, then the vibraphone melody comes and goes every 8 bars
+        if (bar % 8 === 0) melody = bar >= 8 && (melody ? H.chance(0.5) : H.chance(0.8));
+        if (bar % 8 === 7) fillBar = H.chance(0.6) ? bar : -1;
+        if (melody) {
+          const sc = H.fit(MEL, [...cur.v, cur.b]);
+          if (bar % 2 === 0) {
+            const pos = H.pick(RHY), notes = H.phrase(sc, pos.length, Math.min(sc.length - 1, 2 + Math.floor(R() * 3)), history);
+            call = notes;
+            notes.forEach((m, k) => L.mallet(lead, 'vibe', m, t + pos[k] * s16 + swingAt(0.58, pos[k]) + hum(5), H.rr(0.55, 0.7), { level: 0.1 }));
+          } else if (call && H.chance(0.65)) {
+            const land = H.pick(sc.filter(n => cur.v.some(c => (c - n) % 12 === 0)).concat(sc[3]));
+            [[2, call[call.length - 1] ?? land], [4, land]].forEach(([p, m]) => L.mallet(lead, 'vibe', m, t + p * s16 + swingAt(0.58, p) + hum(5), H.rr(0.48, 0.6), { level: 0.1 }));
+          }
+        }
         if (dropHats > 0) dropHats--; if (dropKick > 0) dropKick--;
       }
 
@@ -2613,6 +2657,7 @@ const Tracks = (() => {
             if (k.includes(s) && !(s === 13 && H.chance(0.4))) L.kick(drums, t + swingAt(0.52, s) + kickLate + hum(4), H.rr(0.8, 1), { f0: 115, f1: 52, decay: 0.28, level: 0.32 });
           }
           if (s === 4 || s === 12) L.snare(drums, t + snareOff + hum(3), H.rr(0.75, 0.9), { freq: 2300, decay: 0.12, lp: 7000, level: 0.4 });
+          if (fillBar === bar && (s === 13 || s === 14 || s === 15)) L.snare(drums, t + swingAt(0.56, s) + 0.006, 0.25 + (s - 13) * 0.12, { freq: 2400, decay: 0.07, lp: 7000, level: 0.4 });   // a small fill into the next section
           if ((s === 7 || s === 14) && H.chance(0.6)) L.rim(drums, t + swingAt(0.6, s) + H.rr(0.005, 0.02), H.rr(0.2, 0.35), { level: 0.26 });
           if (dropHats === 0 && HATS[s] && H.chance(0.75)) {
             const acc = s % 4 === 2 ? 0.6 : s % 2 === 0 ? 0.5 : 0.3;
