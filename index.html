@@ -410,13 +410,20 @@ body.pip .music-menu.open {
 .card[hidden] { display: none; }
 .card-head { display: flex; align-items: flex-start; gap: 4px; flex: none; }
 .card-title {
-  flex: 1; min-width: 0; appearance: none; border: 0; background: none; color: inherit; cursor: pointer; text-align: left;
+  flex: 1; min-width: 0; appearance: none; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; border-radius: 6px;
   font: 800 max(17px, calc(var(--cf) * 1.15))/1.15 var(--font); padding: 4px 0; overflow-wrap: anywhere;   /* the title is never smaller than the steps */
 }
 .card-time { display: none; appearance: none; border: 0; cursor: pointer; background: var(--btn); color: var(--btn-ink); border-radius: 8px;
   font: 800 15px/1 var(--font); font-variant-numeric: tabular-nums; padding: 6px 8px; }
 .panel.timer-min .card-time { display: inline-block; }
 .panel.done.timer-min .card-time { background: var(--urgent); color: var(--on-urgent); }
+.card-title .chev { width: .62em; height: .62em; margin-left: .25em; vertical-align: .05em; opacity: .8; }
+.card-title:hover .chev, .card-title[aria-expanded="true"] .chev { opacity: 1; }
+.card-title[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.card.editing .chev { display: none; }
+.card.editing .card-title { cursor: default; }
+.card-editbtn { flex: none; height: 28px; padding: 0 10px; }
+.card-editbtn[hidden] { display: none; }
 .card .btn.ic { width: 28px; height: 28px; padding: 0; display: inline-grid; place-items: center; flex: none; }
 .card .btn.ic svg { width: 15px; height: 15px; }
 .card-body { display: flex; flex-direction: column; min-height: 0; font-size: var(--cf); }
@@ -442,20 +449,31 @@ body.pip .music-menu.open {
 .pick-item.new { font-weight: 800; }
 .pick-item[aria-current="true"] { box-shadow: inset 0 0 0 1px var(--chip-line); }
 .card-edit { display: flex; flex-direction: column; gap: 6px; margin: 6px 6px 0 0; }
-.card-edit input, .card-edit textarea {
-  width: 100%; padding: 6px 8px; border: 1px solid var(--chip-line); border-radius: 8px; background: var(--panel); color: var(--ink);
-  font: 600 14px/1.3 var(--font);
-}
-.card-edit textarea { resize: vertical; min-height: 84px; }
-.card-edit label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
-.card-edit label input { width: 70px; }
-.card-edit-foot { display: flex; flex-wrap: wrap; gap: 6px; }
-.card-edit-foot [hidden] { display: none; }
+.edit-lbl { margin: 4px 0 0; font-size: 12px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
+.card-edit input { padding: 7px 9px; border: 1px solid var(--chip-line); border-radius: 8px; background: var(--panel); color: var(--ink); font: 600 15px/1.3 var(--font); min-width: 0; }
+.card-edit .edit-title { font-size: 17px; font-weight: 800; }
+.edit-steps { display: flex; flex-direction: column; gap: 5px; margin: 0; padding: 0; list-style: none; counter-reset: es; overflow-y: auto; }
+.edit-steps li { display: flex; align-items: center; gap: 6px; counter-increment: es; }
+.edit-steps li::before { content: counter(es) "."; flex: none; min-width: 1.3em; font-weight: 800; font-variant-numeric: tabular-nums; }
+.edit-steps input { flex: 1; }
+.edit-x { flex: none; width: 28px; height: 28px; appearance: none; border: 0; border-radius: 7px; background: none; color: inherit; font: 700 17px/1 var(--font); cursor: pointer; }
+.edit-x:hover, .edit-x:focus-visible { background: var(--btn); color: var(--btn-ink); }
+.edit-add { align-self: flex-start; appearance: none; border: 1px dashed var(--chip-line); border-radius: 8px; background: none; color: inherit; font: 700 14px/1 var(--font); padding: 7px 10px; cursor: pointer; }
+.edit-add:hover { background: var(--btn); color: var(--btn-ink); }
+.edit-add:disabled { display: none; }
+.edit-min { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 14px; font-weight: 700; }
+.edit-min input { width: 64px; text-align: center; }
+.card-edit-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; }
+.edit-more { display: flex; flex-wrap: wrap; gap: 2px 10px; margin-left: auto; }
+.edit-link { appearance: none; border: 0; background: none; color: inherit; font: 600 13px/1.3 var(--font); text-decoration: underline; text-underline-offset: 2px; padding: 4px 0; cursor: pointer; }
+.edit-link[hidden] { display: none; }
+.pick-head { margin: 6px 8px 2px; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
+.pick-head:first-child { margin-top: 0; }
 .card.min .card-body, .card.min .card-pick, .card.min .card-edit { display: none; }
 .card.min { padding-bottom: 6px; }
 .card.fill { overflow: hidden; }                                       /* Float, the big panel, wide screens: the card fills its space */
 .card.fill .card-pick, .card.fill .card-edit { flex: 1 1 0; max-height: none; min-height: 0; }
-.card.fill .card-edit textarea { flex: 1 1 0; min-height: 60px; }
+.card.fill .edit-steps { flex: 0 1 auto; min-height: 40px; }
 .panel.timer-min .clock-wrap, .panel.timer-min .controls, .panel.timer-min .mini-music, .panel.timer-min .turn-label, .panel.timer-min .prompt-strip { display: none !important; }
 .panel:not(.has-card) #btnTimerMin { display: none; }
 #btnCard[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
@@ -1518,18 +1536,13 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
   #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .guide.open { top: calc(100% + 6px); left: 0; right: auto; }
   #app.settings-open:not(.view-facil):has(> .panel.has-card:not(.card-min)), #app.guide-open:not(.view-facil):has(> .panel.has-card:not(.card-min)) { padding-left: 16px; padding-right: 16px; }
 }
-@media (min-width: 1200px) {
-  body:not(.pip) #app:not(.view-facil) .panel { max-width: 640px; display: grid; grid-template-columns: 170px 404px; column-gap: 22px; align-content: start; }
-  body:not(.pip) #app:not(.view-facil) .panel > *, body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > * { grid-column: 2; }
-  body:not(.pip) #app:not(.view-facil) .panel > .float-build, body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .float-build { display: flex; grid-column: 1; grid-row: 1 / span 20; }
+@media (min-width: 1200px) {   /* Your Float appears once a card is open */
   body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) { max-width: 1140px; grid-template-columns: 170px 404px minmax(0, 1fr); }
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > * { grid-column: 2; }
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .float-build { display: flex; grid-column: 1; grid-row: 1 / span 20; }
   body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .card { grid-column: 3; }
   body:not(.pip) #app:not(.view-facil) .panel.timer-min > .card { grid-column: 2 / -1; }
-  #app:not(.view-facil) .home-bar { max-width: 640px; }
   #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .home-bar { max-width: 1140px; }
-  .settings.open { top: calc(100% + 6px); left: auto; right: 0; }
-  .guide.open { top: calc(100% + 6px); left: 0; right: auto; }
-  #app.settings-open:not(.view-facil), #app.guide-open:not(.view-facil) { padding-left: 16px; padding-right: 16px; }
 }
 
 /* ---------- Full screen (was Facilitate): drag the divider to resize; the card can go into the big panel ---------- */
@@ -1541,13 +1554,18 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
 .facil-split:hover::after, .facil-split:focus-visible::after, .facil-split.drag::after { opacity: .9; height: 96px; margin-top: -48px; }
 .facil-split:focus-visible { outline-offset: -2px; }
 #app.view-facil > .instructions { grid-column: 3; grid-row: 1; }
-html body #app.view-facil .instructions.pushed { background: transparent; box-shadow: none; padding: 0; border-radius: 0; }
-.instructions.pushed::before { display: none; }
+html body #app.view-facil .instructions.pushed:not(.prompting) { background: transparent; box-shadow: none; padding: 0; border-radius: 0; }
+.instructions.pushed .card-pick, .instructions.pushed .card-edit { zoom: 1.45; }   /* choosing and editing read at a distance in the big panel too */
+.instructions.pushed:not(.prompting)::before { display: none; }
 .instructions.pushed #instrText, .instructions.pushed #instrImg, .instructions.pushed #btnClear { display: none !important; }
 .instr-body > .card { flex: 1; min-width: 0; margin: 0; }
 .instructions.prompting .card { display: none; }
 #btnCardPush { display: none; }
 #app.view-facil #btnCardPush { display: inline-grid; }
+#app.view-facil.card-solo { grid-template-columns: 0 0 minmax(0, 1fr); gap: 0; }               /* timer hidden + card in the big panel: the card gets the whole screen */
+#app.view-facil.card-solo > .panel, #app.view-facil.card-solo > .facil-split { display: none; }
+#app.card-solo .card-time { display: inline-block; }
+#app.card-solo:has(> .panel.done) .card-time { background: var(--urgent); color: var(--on-urgent); }
 /* Float with a card: the vibes that need a different short layout (same as with a Pair up prompt) */
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock { font-size: min(8vw, 9vh); }
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock-wrap { padding: 18px 16px 14px; margin: 8px 0 4px; }
@@ -1665,10 +1683,9 @@ html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min)
 
     <div class="card" id="card" role="region" aria-label="Card" hidden>
       <div class="card-head">
-        <button class="card-title" id="cardTitle" type="button" aria-expanded="true" title="Minimize or expand the card">Choose a card</button>
+        <button class="card-title" id="cardTitle" type="button" aria-haspopup="menu" aria-expanded="false" title="Switch to another card"><span id="cardTitleText">Choose a card</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
         <button class="card-time" id="cardTime" type="button" title="Show the timer">5:00</button>
-        <button class="btn small ic" id="btnCardPick" type="button" aria-pressed="false" title="Choose a card" aria-label="Choose a card"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-        <button class="btn small ic" id="btnCardEdit" type="button" aria-pressed="false" title="Edit this card" aria-label="Edit this card"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg></button>
+        <button class="btn small card-editbtn" id="btnCardEdit" type="button" title="Change this card's title, steps, or time">Edit</button>
         <button class="btn small ic" id="btnCardPush" type="button" title="Show the card in the big panel" aria-label="Show the card in the big panel"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
         <button class="btn small ic" id="btnCardMin" type="button" title="Minimize the card" aria-label="Minimize the card">–</button>
         <button class="btn small ic" id="btnCardClose" type="button" title="Close the card (C)" aria-label="Close the card">×</button>
@@ -1679,15 +1696,20 @@ html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min)
       </div>
       <div class="card-pick" id="cardPick" role="menu" aria-label="Cards" hidden></div>
       <div class="card-edit" id="cardEdit" hidden>
-        <input id="editTitle" type="text" maxlength="80" aria-label="Card title" placeholder="Title" autocomplete="off">
-        <textarea id="editSteps" aria-label="Steps, one per line" placeholder="One step per line"></textarea>
-        <label>Minutes <input id="editMin" type="number" min="0" max="180" inputmode="numeric" placeholder="none"></label>
+        <label class="edit-lbl" for="editTitle">Title</label>
+        <input id="editTitle" class="edit-title" type="text" maxlength="80" placeholder="Card title" autocomplete="off">
+        <p class="edit-lbl" id="editStepsLbl">Steps</p>
+        <ol class="edit-steps" id="editSteps" aria-labelledby="editStepsLbl"></ol>
+        <button class="edit-add" id="btnEditAdd" type="button">+ Add a step</button>
+        <label class="edit-min">Time <input id="editMin" type="number" min="0" max="180" inputmode="numeric" placeholder="–"> min</label>
         <div class="card-edit-foot">
-          <button class="btn small primary" id="btnEditDone" type="button" title="Save (Ctrl+Enter)">Done</button>
-          <button class="btn small" id="btnEditNew" type="button">Save as new</button>
-          <button class="btn small" id="btnEditRestore" type="button" hidden>Restore original</button>
-          <button class="btn small" id="btnEditDelete" type="button" hidden>Delete</button>
+          <button class="btn small primary" id="btnEditDone" type="button" title="Save (Ctrl+Enter)">Save</button>
           <button class="btn small" id="btnEditCancel" type="button" title="Cancel (Esc)">Cancel</button>
+          <span class="edit-more">
+            <button class="edit-link" id="btnEditNew" type="button">Save as a new card</button>
+            <button class="edit-link" id="btnEditRestore" type="button" hidden>Restore original</button>
+            <button class="edit-link" id="btnEditDelete" type="button" hidden>Delete card</button>
+          </span>
         </div>
       </div>
     </div>
@@ -6614,8 +6636,8 @@ const UI = (() => {
     if (k === 'g' || k === 'G') { act.prompt(); return; }
     if (k === 'c' || k === 'C') { setCard(!cardOn); return; }
     if (k === 'n' || k === 'N') { nextStep(); return; }
-    if (k === 'Escape' && document.body.classList.contains('full')) { exitFull(); return; }
     if (k === 'Escape' && (menuOpen() || musicMenuOpen())) { setMenu(false); setMusicMenu(false); return; }
+    if (k === 'Escape' && document.body.classList.contains('full')) { exitFull(); return; }
     if (k === 'Escape' && promptActive) { dismissPrompt(); return; }
     if (k === 'Escape' && cardOn && cardMode === 'pick' && cur) { cardMode = 'view'; renderCard(); return; }
   }
@@ -6782,7 +6804,7 @@ const UI = (() => {
   ];
   Object.assign(el, { card: $('card'), cardBtn: $('btnCard'), cardTitle: $('cardTitle'), cardTime: $('cardTime'), cardBody: $('cardBody'), cardSteps: $('cardSteps'),
     cardBack: $('cardBack'), backAt: $('backAt'), backLeft: $('backLeft'), cardPick: $('cardPick'), cardEdit: $('cardEdit'),
-    pickBtn: $('btnCardPick'), editBtn: $('btnCardEdit'), cardMinBtn: $('btnCardMin'), timerMinBtn: $('btnTimerMin'),
+    cardTitleText: $('cardTitleText'), editAdd: $('btnEditAdd'), editBtn: $('btnCardEdit'), cardMinBtn: $('btnCardMin'), timerMinBtn: $('btnTimerMin'),
     pushBtn: $('btnCardPush'), fbTimer: $('fbTimer'), fbCard: $('fbCard'), fbPair: $('fbPair'),
     editTitle: $('editTitle'), editSteps: $('editSteps'), editMin: $('editMin'), editRestore: $('btnEditRestore'), editDelete: $('btnEditDelete') });
   const CARDS_KEY = 'ht-cards';
@@ -6807,7 +6829,7 @@ const UI = (() => {
   const wallTime = ms => clockFmt.formatToParts(new Date(ms)).filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();   // "10:42"
 
   /* Full screen: the card can sit in the big panel instead of beside the timer (remembered for next time) */
-  let cardPushed = false, pushPref = false;
+  let cardPushed = false, pushPref = true;
   function placeCard() {
     const want = cardOn && pushPref && el.app.classList.contains('view-facil');
     if (want && !cardPushed) { el.instr.querySelector('.instr-body').appendChild(el.card); cardPushed = true; }
@@ -6818,6 +6840,7 @@ const UI = (() => {
   }
   function renderCard() {
     placeCard();
+    el.app.classList.toggle('card-solo', cardPushed && timerMin);
     cur = cardId ? cardById(cardId) : null;
     if (!cur && cardOn && cardMode === 'view') cardMode = 'pick';
     el.panel.classList.toggle('has-card', cardOn);
@@ -6826,17 +6849,16 @@ const UI = (() => {
     el.panel.classList.toggle('card-busy', cardOn && cardMode !== 'view');
     el.card.hidden = !cardOn;
     el.card.classList.toggle('min', cardMin);
+    el.card.classList.toggle('editing', cardMode === 'edit');
     el.cardBtn.setAttribute('aria-pressed', String(cardOn));
     syncBuilder();
     el.timerMinBtn.textContent = timerMin ? 'Show timer' : 'Hide timer';
-    el.cardTitle.textContent = cardMode === 'pick' ? 'Choose a card' : cardMode === 'edit' ? 'Edit card' : cur.title;
-    el.cardTitle.setAttribute('aria-expanded', String(!cardMin));
+    el.cardTitleText.textContent = cardMode === 'pick' ? 'Choose a card' : cardMode === 'edit' ? 'Editing: ' + cur.title : cur.title;
+    el.cardTitle.setAttribute('aria-expanded', String(cardMode === 'pick'));
     el.cardMinBtn.textContent = cardMin ? '+' : '–';
     el.cardMinBtn.title = cardMin ? 'Expand the card' : 'Minimize the card';
     el.cardMinBtn.setAttribute('aria-label', el.cardMinBtn.title);
-    el.pickBtn.setAttribute('aria-pressed', String(cardMode === 'pick'));
-    el.editBtn.setAttribute('aria-pressed', String(cardMode === 'edit'));
-    el.editBtn.disabled = !cur;
+    el.editBtn.hidden = !cur || cardMode !== 'view' || cardMin;
     el.cardBody.hidden = cardMode !== 'view';
     el.cardPick.hidden = cardMode !== 'pick';
     el.cardEdit.hidden = cardMode !== 'edit';
@@ -6862,11 +6884,14 @@ const UI = (() => {
       if (meta) { const m = d.createElement('small'); m.textContent = meta; b.appendChild(m); }
       b.addEventListener('click', onPick); return b;
     };
-    el.cardPick.replaceChildren(...allCards().map(c => {
-      const b = item(c.title, c.min ? c.min + ' min' : '', () => loadCard(c.id));
-      if (c.id === cardId) b.setAttribute('aria-current', 'true');
-      return b;
-    }), item('+ New card', '', newCard, 'new'));
+    const head = t => { const h = d.createElement('p'); h.className = 'pick-head'; h.textContent = t; return h; };
+    const entry = c => { const b = item((c.id === cardId ? '✓ ' : '') + c.title, c.min ? c.min + ' min' : '', () => loadCard(c.id)); if (c.id === cardId) b.setAttribute('aria-current', 'true'); return b; };
+    const cards = allCards(), mine = cards.filter(c => !c.builtin);
+    el.cardPick.replaceChildren(
+      ...cards.filter(c => c.builtin && c.kind === 'break').map(entry),
+      head('Protocols'), ...cards.filter(c => c.builtin && c.kind !== 'break').map(entry),
+      ...(mine.length ? [head('Your cards'), ...mine.map(entry)] : []),
+      item('+ Make your own card', '', newCard, 'new'));
   }
   /** Float, the big panel, and wide screens: the card fills its space and its text takes the largest size that fits */
   const wideCard = matchMedia('(min-width: 900px)');
@@ -6890,6 +6915,7 @@ const UI = (() => {
     c.style.setProperty('--cf', lo + 'px');
   }
   wideCard.addEventListener('change', () => requestAnimationFrame(fitCard));
+  if (document.fonts) { document.fonts.ready.then(() => fitCard()); document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', () => fitCard()); }   // refit once the vibe's fonts arrive
   /** each frame (from render): the time beside the title when the timer is hidden, and Break's "Back at" clock */
   function cardTick(rem, txt) {
     if (!cardOn) return;
@@ -6921,12 +6947,34 @@ const UI = (() => {
   function startEdit(isNew = false) {
     if (!cur) return;
     editingNew = isNew;
-    el.editTitle.value = cur.title; el.editMin.value = cur.min || ''; el.editSteps.value = cur.steps.join('\n');
+    el.editTitle.value = cur.title; el.editMin.value = cur.min || '';
+    el.editSteps.replaceChildren(); (cur.steps.length ? cur.steps : ['']).forEach(t => addStepRow(t));
     el.editRestore.hidden = !(cur.builtin && cur.edited); el.editDelete.hidden = cur.builtin; $('btnEditNew').hidden = isNew;
     cardMode = 'edit'; cardMin = false; renderCard();
-    if (isNew) { el.editTitle.focus(); el.editTitle.select(); } else el.editSteps.focus();
+    if (isNew) { el.editTitle.focus(); el.editTitle.select(); } else { const f = el.editSteps.querySelector('input'); f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
   }
-  const formCard = () => cleanCard({ title: el.editTitle.value, min: el.editMin.value, steps: el.editSteps.value.split('\n') });
+  const formCard = () => cleanCard({ title: el.editTitle.value, min: el.editMin.value, steps: [...el.editSteps.querySelectorAll('input')].map(i => i.value) });
+  /** one row per step: Enter adds the next step, Backspace on an empty step removes it, × removes it */
+  function addStepRow(text = '', after = null) {
+    const d = el.editSteps.ownerDocument, li = d.createElement('li'), inp = d.createElement('input'), x = d.createElement('button');
+    inp.type = 'text'; inp.maxLength = 200; inp.value = text; inp.placeholder = 'Type a step'; inp.autocomplete = 'off';
+    x.type = 'button'; x.className = 'edit-x'; x.textContent = '×';
+    li.append(inp, x);
+    if (after) after.after(li); else el.editSteps.appendChild(li);
+    x.addEventListener('click', () => removeStepRow(li));
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) { e.preventDefault(); e.stopPropagation(); if (stepRows().length < 8) addStepRow('', li).querySelector('input').focus(); }
+      else if (e.key === 'Backspace' && !inp.value && stepRows().length > 1) { e.preventDefault(); const prev = li.previousElementSibling || li.nextElementSibling; removeStepRow(li); const pi = prev.querySelector('input'); pi.focus(); pi.setSelectionRange(pi.value.length, pi.value.length); }
+    });
+    syncStepRows(); return li;
+  }
+  const stepRows = () => [...el.editSteps.children];
+  function removeStepRow(li) { if (stepRows().length > 1) li.remove(); else li.querySelector('input').value = ''; syncStepRows(); }
+  function syncStepRows() {
+    stepRows().forEach((li, i) => { li.querySelector('input').setAttribute('aria-label', `Step ${i + 1}`); li.querySelector('.edit-x').setAttribute('aria-label', `Remove step ${i + 1}`); });
+    el.editAdd.disabled = stepRows().length >= 8;
+  }
+  el.editAdd.addEventListener('click', () => { const rows = stepRows(); addStepRow('', rows[rows.length - 1] || null).querySelector('input').focus(); });
   function applyMinutes(min, before) { if (min > 0 && min !== before && !timer.running) { lastText = ''; timer.load(min * 60000); } }
   function saveEdit() {
     if (!cur) return;
@@ -6952,12 +7000,12 @@ const UI = (() => {
   }
   el.cardBtn.addEventListener('click', () => setCard(!cardOn));
   $('btnCardClose').addEventListener('click', () => setCard(false));
-  el.cardTitle.addEventListener('click', () => { cardMin = !cardMin; renderCard(); });
+
   el.cardMinBtn.addEventListener('click', () => { cardMin = !cardMin; renderCard(); });
   el.cardTime.addEventListener('click', () => { timerMin = false; renderCard(); });
   el.timerMinBtn.addEventListener('click', () => { setMenu(false); timerMin = !timerMin; if (timerMin) cardMin = false; renderCard(); });
-  el.pickBtn.addEventListener('click', () => { if (cardMode === 'edit') cancelEdit(); cardMode = cardMode === 'pick' && cur ? 'view' : 'pick'; cardMin = false; renderCard(); });
-  el.editBtn.addEventListener('click', () => { if (cardMode === 'edit') cancelEdit(); else startEdit(); });
+  el.cardTitle.addEventListener('click', () => { if (cardMode === 'edit') return; cardMode = cardMode === 'pick' && cur ? 'view' : 'pick'; cardMin = false; renderCard(); });
+  el.editBtn.addEventListener('click', () => startEdit());
   $('btnEditDone').addEventListener('click', saveEdit);
   $('btnEditNew').addEventListener('click', saveAsNew);
   $('btnEditCancel').addEventListener('click', cancelEdit);
@@ -6965,7 +7013,9 @@ const UI = (() => {
   el.editDelete.addEventListener('click', () => { if (!cur || cur.builtin) return; cardStore.custom = cardStore.custom.filter(x => x.id !== cur.id); saveCards(); cardId = null; cardMode = 'pick'; renderCard(); });
   el.cardEdit.addEventListener('keydown', e => {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancelEdit(); }
-    else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey || e.target.tagName === 'INPUT')) { e.preventDefault(); saveEdit(); }
+    else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveEdit(); }
+    else if (e.key === 'Enter' && e.target === el.editTitle) { e.preventDefault(); el.editSteps.querySelector('input').focus(); }
+    else if (e.key === 'Enter' && e.target === el.editMin) { e.preventDefault(); saveEdit(); }
   });
   function nextStep() { if (cardOn && cur && cardMode === 'view' && cur.steps.length) { stepOn = (stepOn + 1) % (cur.steps.length + 1); if (stepOn === cur.steps.length) stepOn = -1; renderCard(); } }
   window.addEventListener('resize', fitCard);
@@ -7188,14 +7238,15 @@ const UI = (() => {
   /* ---------- facilitation view + paste ---------- */
   function enterFacil() {
     if (pipWin) pipWin.close();
+    setMenu(false); setMusicMenu(false);
     el.app.classList.add('view-facil');
     const de = document.documentElement;
     if (!document.fullscreenElement && de.requestFullscreen) de.requestFullscreen().catch(() => {});
     renderCard();
-    requestAnimationFrame(() => { fitText(); fitPrompt(); fitCard(); theme().renderer.invalidate(); });
+    requestAnimationFrame(() => { fitText(); fitPrompt(); fitCard(); theme().renderer.invalidate(); }); setTimeout(fitCard, 350);   // again once full screen has settled
   }
   function exitFacil() {
-    el.app.classList.remove('view-facil');
+    el.app.classList.remove('view-facil'); setMenu(false); setMusicMenu(false);
     renderCard(); requestAnimationFrame(() => { theme().renderer.invalidate(); });
     if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
   }
@@ -7255,6 +7306,7 @@ const UI = (() => {
       return;
     }
     if (el.app.classList.contains('view-facil')) exitFacil();
+    setMenu(false); setMusicMenu(false);
     try {
       pipWin = await documentPictureInPicture.requestWindow(cardOn ? { width: 420, height: 540 } : { width: 380, height: 330 });
     } catch (err) { toast('Couldn’t open Float. Click it again.'); pipWin = null; return; }
@@ -7310,6 +7362,7 @@ const UI = (() => {
   }
   function exitFull() {
     if (!document.body.classList.contains('full')) return;
+    setMenu(false); setMusicMenu(false);
     document.body.classList.remove('pip', 'full');
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
