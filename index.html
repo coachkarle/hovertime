@@ -1595,7 +1595,7 @@ body:not(.pip) #app:not(.view-facil) .page-grip {
 }
 .page-grip::after { content: ""; position: absolute; left: 14px; right: 14px; top: 5px; height: 4px; border-radius: 2px; background: var(--soft); opacity: .45; transition: opacity .15s; }
 .page-grip:hover::after, .page-grip:focus-visible::after, .page-grip.drag::after { opacity: 1; }
-body:not(.pip) #app:not(.view-facil) .panel { zoom: var(--pz, 1); }
+body:not(.pip) #app:not(.view-facil) .panel, body:not(.pip) #app:not(.view-facil) .home-bar { zoom: var(--pz, 1); }   /* the header grows with the timer */
 html.touch .page-grip { display: none !important; }
 </style>
 </head>
@@ -7314,7 +7314,7 @@ const UI = (() => {
   let pageZoom = 1;
   try { const z = parseFloat(localStorage.getItem(ZOOM_KEY)); if (z >= 1 && z <= 2.5) pageZoom = z; } catch (e) {}
   function applyZoom() {
-    const st = el.panel.style; st.setProperty('--pz', '1');
+    const st = el.app.style; st.setProperty('--pz', '1');
     const base = el.panel.getBoundingClientRect(), roomW = (innerWidth - 32) / Math.max(1, base.width);
     const z = Math.max(1, Math.min(pageZoom, roomW, 2.5));
     st.setProperty('--pz', z.toFixed(3)); grip.setAttribute('aria-valuenow', String(Math.round(z * 100)));
@@ -7323,7 +7323,7 @@ const UI = (() => {
   let gripFrom = null;
   grip.addEventListener('pointerdown', e => { e.preventDefault(); grip.setPointerCapture(e.pointerId); grip.classList.add('drag'); gripFrom = { y: e.clientY, z: pageZoom, h: el.panel.getBoundingClientRect().height }; });
   grip.addEventListener('pointermove', e => { if (!gripFrom) return; pageZoom = Math.max(1, Math.min(2.5, gripFrom.z * (1 + (e.clientY - gripFrom.y) / Math.max(200, gripFrom.h)))); applyZoom(); });
-  const endGrip = () => { if (!gripFrom) return; gripFrom = null; grip.classList.remove('drag'); pageZoom = parseFloat(el.panel.style.getPropertyValue('--pz')) || 1; try { localStorage.setItem(ZOOM_KEY, String(pageZoom)); } catch (e) {} };
+  const endGrip = () => { if (!gripFrom) return; gripFrom = null; grip.classList.remove('drag'); pageZoom = parseFloat(el.app.style.getPropertyValue('--pz')) || 1; try { localStorage.setItem(ZOOM_KEY, String(pageZoom)); } catch (e) {} };
   grip.addEventListener('pointerup', endGrip); grip.addEventListener('pointercancel', endGrip);
   grip.addEventListener('dblclick', () => { pageZoom = 1; try { localStorage.removeItem(ZOOM_KEY); } catch (e) {} applyZoom(); });
   grip.addEventListener('keydown', e => {
