@@ -490,7 +490,10 @@ body.pip .panel.has-card:not(.card-min) .clock { font-size: min(14vw, 13vh); }
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min) .clock { font-size: min(7vw, 7vh); }
 body.pip .panel.has-card:not(.card-min) .controls { margin-top: 6px; }
 body.pip .panel.has-card:not(.card-min) .controls .btn { padding: 8px 6px; font-size: 14px; }
-body.pip .panel.has-card:not(.card-min) .mini-music { display: none; }
+body.pip .panel.has-card:not(.card-min) .mini-music { margin-top: 6px; }               /* with a card: just the ♪ button (songs + More music), no volume slider */
+body.pip .panel.has-card:not(.card-min) .mini-music input[type=range] { display: none; }
+body.pip .panel.has-card:not(.card-min) .mini-music .btn { min-width: 0; padding: 5px 10px; }
+@media (max-height: 380px) { body.pip .panel.has-card:not(.card-min) .mini-music { display: none; } }
 body.pip .panel.timer-min .card { margin-bottom: 0; }
 /* ================================================================
    8-BIT MODE: a handheld-console look (dot-matrix screen, dialog boxes,
@@ -1573,6 +1576,13 @@ html body #app.view-facil .instructions.pushed:not(.prompting) { background: tra
 /* Float with a card: the vibes that need a different short layout (same as with a Pair up prompt) */
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock { font-size: min(8vw, 9vh); }
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock-wrap { padding: 18px 16px 14px; margin: 8px 0 4px; }
+/* More music: a compact dropdown of every other vibe's songs */
+.more-music {
+  max-width: 132px; height: 28px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--chip-line);
+  background: var(--panel); color: var(--soft); font: 600 13px/1 var(--font); cursor: pointer;
+}
+.more-music:hover { color: var(--ink); }
+.music-menu .more-music { flex: 1 1 100%; max-width: none; margin-top: 2px; }
 /* the page size grip: drag down to make the timer (and card) bigger on this page; Float and Full screen size themselves */
 .page-grip { display: none; }
 body:not(.pip) #app:not(.view-facil) .page-grip {
@@ -1600,10 +1610,11 @@ html.touch .page-grip { display: none !important; }
       <div class="guide-head"><p class="set-title" id="guideTitle">Quick guide</p><button class="tour-x" id="guideClose" type="button" aria-label="Close the guide">×</button></div>
       <button class="btn primary guide-tour" id="guideTour" type="button"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Take the 1-minute tour</button>
       <ol class="guide-list">
-        <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds.</span></li>
+        <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds. <b>More music</b> plays any vibe’s songs in any vibe.</span></li>
         <li class="guide-float"><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
         <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Full screen</b>: the timer beside big directions or your card; drag the divider to resize.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
-        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too), click a line to highlight it, double-click to edit, or jot a quick note. <b>Break</b> shows when everyone’s back.</span></li>
+        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Click the card’s title to pick a protocol (its time loads too) or <b>+ New note</b>. Click a line to highlight it (<kbd class="keys-only">N</kbd><span class="keys-only"> for the next</span>); double-click or <b>Edit</b> to change it. <b>Break</b> shows when everyone’s back. Delete your own cards with × in the list.</span></li>
+        <li class="keys-only"><b>Bigger page</b><span>Keeping this page up instead of floating? Drag the small bar under the timer down to make everything bigger (double-click it to reset).</span></li>
         <li><b>Set the time</b><span>Tap or click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>.<span class="keys-only"> Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></span></li>
         <li><b>Make it yours</b><span>⚙ has common school colors, fonts, and palettes.</span></li>
       </ol>
@@ -1778,6 +1789,7 @@ html.touch .page-grip { display: none !important; }
       <div class="music-row">
         <span class="music-icon" title="Background music" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></span>
         <div class="chips" id="chips" role="radiogroup" aria-label="Background music"></div>
+        <select class="more-music" id="moreMusic" aria-label="More music: songs from the other vibes"></select>
         <button class="btn small" id="btnShuffle" type="button" aria-pressed="false" title="Change tracks every 2 minutes (timers of 5 minutes or more)">Shuffle</button>
       </div>
       <div class="vol-row">
@@ -5138,8 +5150,9 @@ const Themes = (() => {
         const wr = main.getBoundingClientRect(), cr = clock.getBoundingClientRect(), cs = getComputedStyle(clock), fs = parseFloat(cs.fontSize) || 40;
         const c = main.getContext('2d');
         c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-        const tw = c.measureText(clock.value).width + fs * 0.5, th = Math.min(cr.height, fs * 1.05);
-        st.scrim = { x: cr.left - wr.left + (cr.width - tw) / 2, y: cr.top - wr.top + (cr.height - th) / 2, w: tw, h: th };
+        const z = main.currentCSSZoom || 1;                                 // screen measurements include the page size grip; the drawing doesn't
+        const tw = c.measureText(clock.value).width + fs * 0.5, th = Math.min(cr.height / z, fs * 1.05);
+        st.scrim = { x: (cr.left - wr.left) / z + (cr.width / z - tw) / 2, y: (cr.top - wr.top) / z + (cr.height / z - th) / 2, w: tw, h: th };
         const k = [sz.W, sz.H, sz.dpr, s.toFixed(4), st.marks.join(','), fin, st.scroll.toFixed(3), st.pulse.toFixed(2), fl.toFixed(2),
           st.twinkle == null ? '' : Math.round(st.twinkle * 8), Math.round(st.scrim.x), Math.round(st.scrim.w), Math.round(st.scrim.y)].join('|');
         if (k === key) return;
@@ -5341,8 +5354,9 @@ const Themes = (() => {
         const wr = main.getBoundingClientRect(), cr = clock.getBoundingClientRect(), cs = getComputedStyle(clock), fs = parseFloat(cs.fontSize) || 40;
         const c = main.getContext('2d');
         c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-        const tw = c.measureText(clock.value).width + fs * 0.7, th = Math.min(cr.height, fs * 1.12);
-        st.scrim = { x: cr.left - wr.left + (cr.width - tw) / 2, y: cr.top - wr.top + (cr.height - th) / 2, w: tw, h: th };
+        const z = main.currentCSSZoom || 1;                                 // screen measurements include the page size grip; the drawing doesn't
+        const tw = c.measureText(clock.value).width + fs * 0.7, th = Math.min(cr.height / z, fs * 1.12);
+        st.scrim = { x: (cr.left - wr.left) / z + (cr.width / z - tw) / 2, y: (cr.top - wr.top) / z + (cr.height / z - th) / 2, w: tw, h: th };
         const k = [sz.W, sz.H, sz.dpr, s.toFixed(4), st.marks.join(','), st.urgent, rays.toFixed(2), Math.round(st.drift * 20), st.birds.toFixed(3),
           Math.round(st.scrim.x), Math.round(st.scrim.w), Math.round(st.scrim.y)].join('|');
         if (k === key) return;
@@ -6882,6 +6896,28 @@ const UI = (() => {
 
   /* ---------- music picker ---------- */
   const choices = [...AudioEngine.Tracks.list.map(t => ({ id: t.id, name: t.name, set: Themes.setOf(t) })), { id: null, name: 'Off', set: '' }];
+  /* "More music": any song from any vibe, in a compact dropdown beside this vibe's own songs (page + Float menu) */
+  const SET_NAMES = { calm: 'Calm (Basic, Sand, Wedge, Sunrise, Grow, Rain)', chip: '8-bit', synth: 'Synthwave', show: 'Game Show', ambient: 'Sci-Fi' };
+  el.moreMusic = $('moreMusic');
+  el.moreMusicMini = document.createElement('select'); el.moreMusicMini.className = 'more-music'; el.moreMusicMini.setAttribute('aria-label', 'More music: songs from the other vibes');
+  function buildMoreMusic() {
+    const set = theme().music.set;
+    for (const sel of [el.moreMusic, el.moreMusicMini]) {
+      sel.innerHTML = '';
+      const d = sel.ownerDocument, first = d.createElement('option'); first.value = ''; first.textContent = 'More music…'; sel.appendChild(first);
+      for (const [k, label] of Object.entries(SET_NAMES)) {
+        if (k === set) continue;
+        const g = d.createElement('optgroup'); g.label = label;
+        AudioEngine.Tracks.list.filter(t => Themes.setOf(t) === k).forEach(t => { const o = d.createElement('option'); o.value = t.id; o.textContent = t.name; g.appendChild(o); });
+        sel.appendChild(g);
+      }
+      sel.value = track && trackSet(track) !== set ? track : '';
+    }
+  }
+  [() => el.moreMusic, () => el.moreMusicMini].forEach(get => get().addEventListener('change', () => {
+    const id = get().value; if (!id) return;
+    AudioEngine.unlock().then(() => { setTrack(id); setMusicMenu(false); window.htCount && htCount('music/' + id); });
+  }));
   choices.forEach(c => {
     const b = document.createElement('button');
     b.className = 'chip'; b.type = 'button'; b.textContent = c.name;
@@ -6898,6 +6934,7 @@ const UI = (() => {
     [...el.chips.children, ...el.musicMenu.children].forEach(b => b.setAttribute('aria-checked', String((b.dataset.id || null) === id)));
     el.musicMini.textContent = id ? `♪ ${AudioEngine.Tracks.byId[id].name}` : '♪ Off';
     el.musicMini.setAttribute('aria-pressed', String(!!id));
+    if (el.moreMusic && el.moreMusic.options.length) { const v = id && trackSet(id) !== theme().music.set ? id : ''; el.moreMusic.value = v; el.moreMusicMini.value = v; }
     AudioEngine.setTrack(id, timer.running, timer.endAt, smooth);
   }
   /* shuffle: move to a new track every 2 minutes of running time, with a gentle crossfade (timers of 5 min or more) */
@@ -6940,6 +6977,7 @@ const UI = (() => {
   const musicMenuOpen = () => el.musicMenu.classList.contains('open');
   function setMusicMenu(open) { el.musicMenu.classList.toggle('open', open); el.musicMini.setAttribute('aria-expanded', String(open)); }
   el.musicMini.addEventListener('click', () => { AudioEngine.unlock(); setMenu(false); setMusicMenu(!musicMenuOpen()); });
+  el.musicMenu.appendChild(el.moreMusicMini);
   AudioEngine.setVolume(el.volume.value / 100);
   setTrack('lofi');
 
@@ -7369,7 +7407,8 @@ const UI = (() => {
     if (track && trackSet(track) !== set) setTrack(lastBySet[set] || th.music.first);             // each theme plays its own music set
     else if (!track && lastTrack && trackSet(lastTrack) !== set) lastTrack = lastBySet[set] || th.music.first;
     shuffleBag = [];
-    [...el.chips.children, ...el.musicMenu.children].forEach(b => { b.hidden = !!b.dataset.set && b.dataset.set !== set; });   // only this theme's songs (+ Off)
+    [...el.chips.children, ...el.musicMenu.children].forEach(b => { if (b.tagName === 'BUTTON') b.hidden = !!b.dataset.set && b.dataset.set !== set; });   // only this theme's songs (+ Off); other vibes' songs are in More music
+    buildMoreMusic();
     [...el.modePick.children].forEach(b => b.setAttribute('aria-checked', String(b.dataset.theme === th.id)));
     requestAnimationFrame(() => centerVibe(true));
     buildSettings();
@@ -7730,14 +7769,15 @@ const UI = (() => {
     { t: '#modePick', title: 'Pick a vibe', body: 'Ten vibes, from calm Basic to 8-bit, Game Show, and Cozy Rain. Each one brings its own look, music, and sounds, and your choice is remembered.' },
     { t: '#btnFloat', float: true, title: 'Hover over your slides', body: 'The “Hover” in HoverTime: Float pops the timer into a small window that stays on top, even over full-screen Google Slides or PowerPoint, so everyone can see the time while you present. Forgot to set it up? With music on, just switching to your slides can float it automatically (Chrome asks once).' },
     { t: null, wide: true, float: true, title: 'Float, then make it tiny', body: FLOAT_ART + '<span class="tour-note">In the Float window, <b>–</b> shrinks it to a small icon that still counts down. Click the icon to bring it back, and <b>Dock</b> returns it to this page.</span>' },
+    { t: '#btnCard', title: 'Cards: directions that stay up', body: '<b>Card</b> keeps directions on screen with the timer, even over your slides. Pick a ready-made protocol (its time loads too), or jot a quick note. Click a line to highlight where the room is, and double-click to edit. <b>Break</b> shows the time everyone should be back.' },
     { t: '#btnMore', title: 'Pair up, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> puts the timer beside big directions or your card, and you can paste a screenshot.',
       small: { title: 'Pair up, Rotation, Full screen', body: '<b>Pair up</b> shows a random partner prompt (the shuffle icon gives a new one). <b>Rotation</b> splits the time into equal turns with a chime at each switch. <b>Full screen</b> shows just the timer, big: turn your phone sideways.' } },
     { t: '#clock', title: 'Set the time', body: 'Click the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then press Enter. Or press <b>1–9</b> for that many minutes (<b>0</b> = 10).',
       touch: 'Tap the digits and type a time like <b>5</b>, <b>2:30</b>, or <b>90s</b>, then tap Done.' },
     { t: '.controls', title: 'Start and adjust', body: 'Start or pause with the button or the <b>Space</b> bar. <b>−1</b> and <b>+1</b> change the time by a minute, even while it runs (the ↑ ↓ keys work too).',
       touch: 'Tap <b>Start</b> to start or pause. <b>−1</b> and <b>+1</b> change the time by a minute, even while it runs. Your screen stays awake while it counts down.' },
-    { t: '.music', title: 'Music', body: 'Background tracks made for each style. <b>Shuffle</b> changes songs every couple of minutes, and <b>M</b> mutes or brings the music back.',
-      touch: 'Background tracks made for each style. <b>Shuffle</b> changes songs every couple of minutes; tap <b>Off</b> for quiet.' },
+    { t: '.music', title: 'Music', body: 'Background tracks made for each style. <b>Shuffle</b> changes songs every couple of minutes, and <b>M</b> mutes or brings the music back. <b>More music</b> plays any other vibe’s songs.',
+      touch: 'Background tracks made for each style. <b>Shuffle</b> changes songs every couple of minutes; tap <b>Off</b> for quiet. <b>More music</b> has every other vibe’s songs.' },
     { t: '#btnSettings', title: 'Make it yours', body: 'Color presets (including <b>common school colors</b>), fonts, and palettes for the current style.' },
     { t: '#btnTour', title: 'Your cheat sheet', body: 'That’s the tour! <b>How to use</b> opens a quick guide beside the timer anytime, with every shortcut.',
       touch: 'That’s the tour! The <b>?</b> button at the top opens a quick guide anytime.' },
