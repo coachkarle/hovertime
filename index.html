@@ -7213,7 +7213,15 @@ const UI = (() => {
   function fitCard() {
     const c = el.card, max = cardFill();
     c.classList.toggle('fill', !!max && !cardMin);
-    if (cardMode === 'edit' && max) return;                            // editing keeps the size you were reading at
+    if (cardMode === 'edit' && max) {                                  // editing: a comfortable size where all the words fit the box (shrinks as you type)
+      const ta = el.editText, cap = cardPushed ? 40 : el.card.ownerDocument.body.classList.contains('pip') ? 24 : 26;
+      let lo = 16, hi = cap;                                           // 16px floor: past that, the box scrolls instead of the words getting tiny
+      while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1; c.style.setProperty('--cf', mid + 'px');
+        if (ta.scrollHeight > ta.clientHeight + 1 || c.scrollHeight > c.clientHeight + 1) hi = mid; else lo = mid;
+      }
+      c.style.setProperty('--cf', lo + 'px'); return;
+    }
     c.style.removeProperty('--cf');
     if (!max || cardMin || cardMode !== 'view' || !c.offsetHeight) return;
     let lo = 12, hi = max;
@@ -7261,6 +7269,8 @@ const UI = (() => {
     cardMode = 'edit'; cardMin = false; renderCard();
     el.editText.focus(); el.editText.setSelectionRange(el.editText.value.length, el.editText.value.length);
   }
+  let editFitRaf = 0;
+  el.editText.addEventListener('input', () => { cancelAnimationFrame(editFitRaf); editFitRaf = requestAnimationFrame(fitCard); });
   const formCard = () => cleanCard({ title: el.editTitle.value, min: el.editMin.value, text: el.editText.value });
   // a sticky note saves itself when you click away from it
   el.cardEdit.addEventListener('focusout', () => setTimeout(() => {
