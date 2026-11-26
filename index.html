@@ -420,12 +420,8 @@ body.pip .music-menu.open {
   font: 800 15px/1 var(--font); font-variant-numeric: tabular-nums; padding: 6px 8px; }
 .panel.timer-min .card-time { display: inline-block; }
 .panel.done.timer-min .card-time { background: var(--urgent); color: var(--on-urgent); }
-.card-title { display: flex; align-items: center; gap: .25em; flex: 0 1 auto; margin-right: auto; }
-#cardTitleText { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.card-title .chev { flex: none; width: .7em; height: .7em; opacity: .8; }                            /* right after the title */
-.card-title:hover .chev, .card-title[aria-expanded="true"] .chev { opacity: 1; }
-.card-title[aria-expanded="true"] .chev { transform: rotate(180deg); }
-.card.editing .chev { display: none; }
+.card-title { display: block; flex: 1 1 auto; min-width: 0; cursor: default; }
+#cardTitleText { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }   /* two lines at most (fitTitle shrinks it first) */
 .card.editing .card-title { display: none; }                    /* the title box below is the title while editing */
 .card.editing .card-head { justify-content: flex-end; }
 .card-editbtn { flex: none; height: 28px; padding: 0 10px; }
@@ -1621,7 +1617,7 @@ html.touch .page-grip { display: none !important; }
         <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds. The <b>⋯</b> after the songs plays any other vibe’s music.</span></li>
         <li class="guide-float"><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
         <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Full screen</b>: the timer beside big directions or your card; drag the divider to resize.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
-        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Click the card’s title to pick a protocol (its time loads too) or <b>+ New note</b>. Click a line to highlight it (<kbd class="keys-only">N</kbd><span class="keys-only"> for the next</span>); double-click or <b>Edit</b> to change it. <b>Break</b> shows when everyone’s back. Delete your own cards with × in the list.</span></li>
+        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too) or <b>+ New note</b>; to switch later, <b>Edit</b> → <b>Change card</b>. Click a line to highlight it (<kbd class="keys-only">N</kbd><span class="keys-only"> for the next</span>); double-click or <b>Edit</b> to change it. <b>Break</b> shows when everyone’s back. Delete your own cards with × in the list.</span></li>
         <li><b>Set the time</b><span>Tap or click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>.<span class="keys-only"> Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></span></li>
         <li><b>Make it yours</b><span>⚙ has common school colors, fonts, and palettes.</span></li>
       </ol>
@@ -1714,7 +1710,7 @@ html.touch .page-grip { display: none !important; }
 
     <div class="card" id="card" role="region" aria-label="Card" hidden>
       <div class="card-head">
-        <button class="card-title" id="cardTitle" type="button" aria-haspopup="menu" aria-expanded="false" title="Switch to another card"><span id="cardTitleText">Choose a card</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="card-title" id="cardTitle"><span id="cardTitleText">Choose a card</span></div>
         <button class="card-time" id="cardTime" type="button" title="Show the timer">5:00</button>
         <button class="btn small card-editbtn" id="btnCardEdit" type="button" title="Change this card's title, steps, or time">Edit</button>
         <button class="btn small ic" id="btnCardPush" type="button" title="Show the card in the big panel" aria-label="Show the card in the big panel"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
@@ -1734,6 +1730,7 @@ html.touch .page-grip { display: none !important; }
           <button class="btn small" id="btnEditCancel" type="button" title="Cancel (Esc)">Cancel</button>
           <label class="edit-min">Timer <input id="editMin" type="number" min="0" max="180" inputmode="numeric" placeholder="–"> min</label>
           <span class="edit-more">
+            <button class="edit-link" id="btnEditPick" type="button" title="Switch to a different protocol or note">Change card</button>
             <button class="edit-link" id="btnEditNew" type="button">Save as new</button>
             <button class="edit-link" id="btnEditRestore" type="button" hidden>Restore original</button>
             <button class="edit-link" id="btnEditDelete" type="button" hidden>Delete</button>
@@ -7134,7 +7131,6 @@ const UI = (() => {
     syncBuilder();
     el.timerMinBtn.textContent = timerMin ? 'Show timer' : 'Hide timer';
     el.cardTitleText.textContent = cardMode === 'pick' ? 'Choose a card' : cardMode === 'edit' ? 'Editing: ' + cur.title : cur.title;
-    el.cardTitle.setAttribute('aria-expanded', String(cardMode === 'pick'));
     el.cardMinBtn.textContent = cardMin ? '+' : '–';
     el.cardMinBtn.title = cardMin ? 'Expand the card' : 'Minimize the card';
     el.cardMinBtn.setAttribute('aria-label', el.cardMinBtn.title);
@@ -7211,6 +7207,14 @@ const UI = (() => {
     if (wideCard.matches && !el.app.classList.contains('view-facil')) return 44;
     return 0;
   }
+  function fitTitle() {
+    const t = el.cardTitleText; t.style.removeProperty('font-size');
+    if (!t.offsetHeight) return;
+    const cs = () => t.ownerDocument.defaultView.getComputedStyle(t);
+    let fs = parseFloat(cs().fontSize);
+    const twoLines = () => t.scrollHeight <= (parseFloat(cs().lineHeight) || fs * 1.2) * 2 + 2;
+    while (!twoLines() && fs > 14) { fs -= 1; t.style.fontSize = fs + 'px'; }
+  }
   function fitCard() {
     const c = el.card, max = cardFill();
     c.classList.toggle('fill', !!max && !cardMin);
@@ -7224,13 +7228,13 @@ const UI = (() => {
       c.style.setProperty('--cf', lo + 'px'); return;
     }
     c.style.removeProperty('--cf');
-    if (!max || cardMin || cardMode !== 'view' || !c.offsetHeight) return;
+    if (!max || cardMin || cardMode !== 'view' || !c.offsetHeight) { fitTitle(); return; }
     let lo = 12, hi = max;
     while (hi - lo > 1) {
-      const mid = (lo + hi) >> 1; c.style.setProperty('--cf', mid + 'px');
+      const mid = (lo + hi) >> 1; c.style.setProperty('--cf', mid + 'px'); fitTitle();
       if (c.scrollHeight > c.clientHeight + 1 || c.scrollWidth > c.clientWidth + 1) hi = mid; else lo = mid;
     }
-    c.style.setProperty('--cf', lo + 'px');
+    c.style.setProperty('--cf', lo + 'px'); fitTitle();
   }
   wideCard.addEventListener('change', () => requestAnimationFrame(fitCard));
   if (document.fonts) { document.fonts.ready.then(() => fitCard()); document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', () => fitCard()); }   // refit once the vibe's fonts arrive
@@ -7289,6 +7293,9 @@ const UI = (() => {
     el.cardText.querySelectorAll('.ln[data-i]').forEach(n => { const on = +n.dataset.i === i; n.classList.toggle('on', on); if (on) n.setAttribute('aria-current', 'step'); else n.removeAttribute('aria-current'); });
   }
   el.cardText.addEventListener('dblclick', () => { if (cardMode === 'view' && cur) { lineOn = -1; startEdit(); } });
+  el.cardTitle.addEventListener('dblclick', () => { if (cardMode === 'view' && cur) startEdit(); });   // the title edits like the rest of the text
+  // Edit → Change card: keep what was typed (a brand-new empty note is dropped), then show the list
+  $('btnEditPick').addEventListener('click', () => { if (editingNew) cancelEdit(); else saveEdit(); cardMode = 'pick'; cardMin = false; renderCard(); });
   function nextLine() {
     if (!cardOn || !cur || cardMode !== 'view' || !cur.text) return;
     const n = cur.text.split('\n').filter(x => x.trim()).length; if (!n) return;
@@ -7325,7 +7332,6 @@ const UI = (() => {
   el.cardMinBtn.addEventListener('click', () => { cardMin = !cardMin; renderCard(); });
   el.cardTime.addEventListener('click', () => { timerMin = false; renderCard(); });
   el.timerMinBtn.addEventListener('click', () => { setMenu(false); timerMin = !timerMin; if (timerMin) cardMin = false; renderCard(); });
-  el.cardTitle.addEventListener('click', () => { if (cardMode === 'edit') return; cardMode = cardMode === 'pick' && cur ? 'view' : 'pick'; cardMin = false; renderCard(); });
   el.editBtn.addEventListener('click', () => startEdit());
   $('btnEditDone').addEventListener('click', saveEdit);
   el.editNew.addEventListener('click', saveAsNew);
