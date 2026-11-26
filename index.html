@@ -1376,7 +1376,7 @@ html[data-theme="scifi"] .toast { font-family: var(--sf-mono); letter-spacing: 1
 /* Float */
 html[data-theme="scifi"] body.pip .panel { height: 100vh; min-height: 0; border-radius: 0; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sf-hi) 40%, transparent); }
 html[data-theme="scifi"] body.pip .clock-wrap { flex: 1 1 auto; height: auto; min-height: 0; margin: 4px 0 8px; }
-html[data-theme="scifi"] body.pip .panel:has(.prompt-strip:not([hidden])) .clock { width: 62%; margin-left: auto; font-size: min(62cqh, 11cqw) !important; }
+html[data-theme="scifi"] .clock-wrap.ring-left .clock { width: 62%; margin-left: auto; font-size: min(62cqh, 11cqw) !important; }   /* set by the ring renderer */
 html[data-theme="scifi"] body.pip .panel:has(.prompt-strip:not([hidden])) .prompt-strip { padding: 20px 8px 8px 12px; }
 html[data-theme="scifi"] body.pip .prompt-strip span { font-size: 16px; }
 html[data-theme="scifi"] #app.view-facil .panel { padding-top: 54px; }
@@ -1562,7 +1562,6 @@ html body #app.view-facil .instructions.pushed:not(.prompting) { background: tra
 /* Float with a card: the vibes that need a different short layout (same as with a Pair up prompt) */
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock { font-size: min(8vw, 9vh); }
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock-wrap { padding: 18px 16px 14px; margin: 8px 0 4px; }
-html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock { width: 62%; margin-left: auto; font-size: min(62cqh, 11cqw) !important; }
 /* the page size grip: drag down to make the timer (and card) bigger on this page; Float and Full screen size themselves */
 .page-grip { display: none; }
 body:not(.pip) #app:not(.view-facil) .page-grip {
@@ -5627,7 +5626,8 @@ const Themes = (() => {
     const ang = f => -Math.PI / 2 + f * Math.PI * 2;                     // f of a turn, clockwise from 12
     /** st: { s, marks, urgent, phase, shock, simple } */
     function hud(c, W, H, st) {
-      const wide = !st.simple && W / H > 2.2;                            // a short, wide display (Float with a prompt): the ring sits left, the digits right
+      const wide = !st.simple && W / H > 2.2;                            // a short, wide display (Float with a prompt, a wide Full screen side): the ring sits left, the digits right
+      if (!st.simple) { const wrap = c.canvas.parentElement; if (wrap && wrap.classList.contains('ring-left') !== wide) { wrap.classList.toggle('ring-left', wide); requestAnimationFrame(() => UI_fitClock()); } }   // the digits follow the ring
       const K = col, R = Math.min(W, H) / 2 - (st.simple ? 3 : wide ? 4 : 8), cx = wide ? R + 10 : W / 2, cy = H / 2;
       const main = st.urgent ? K.alert : K.hi, left = Math.max(0, 1 - st.s);
       c.lineCap = 'butt';
@@ -6440,6 +6440,7 @@ const UI = (() => {
     const editing = !el.clock.readOnly && (el.clock.ownerDocument.activeElement === el.clock);
     if (txt !== lastText && !editing) {
       el.clock.value = txt; lastText = txt;
+      if (txt.length !== fitClockLen) { fitClockLen = txt.length; requestAnimationFrame(fitClock); }   // 9:59 → 10:00 is wider
     }
     const sec = Math.ceil(rem / 1000);
     if (sec !== lastSecond) {
@@ -6530,6 +6531,16 @@ const UI = (() => {
              turns: rotation.enabled ? rotation.turns : 1, win: hostWindow() };
   }
   function hostWindow() { return pipWin || window; }
+  /** Every vibe sizes its digits for its usual layout; when the room gets tight (a narrow Full screen side, a small Float),
+      step the digits down until they fit their frame. Runs on layout changes, not every frame. */
+  function fitClock() {
+    const c = el.clock; c.style.removeProperty('font-size');
+    if (!c.offsetWidth) return;
+    const fs = parseFloat(c.ownerDocument.defaultView.getComputedStyle(c).fontSize), over = c.scrollWidth / Math.max(1, c.clientWidth);
+    if (over > 1.005) c.style.setProperty('font-size', Math.floor(fs / over * 0.97) + 'px', 'important');
+  }
+  window.UI_fitClock = () => requestAnimationFrame(fitClock);
+  let fitClockLen = 0;
   let rafGen = 0;
   function loop(gen) {
     if (gen !== rafGen) return;
@@ -6884,7 +6895,7 @@ const UI = (() => {
     if (cardMode === 'pick') renderPick();
     lastBack = ''; cardTick(timer.remaining(), TimerCore.format(timer.remaining()));
     if (typeof applyZoom === 'function' && pageZoom > 1) requestAnimationFrame(applyZoom);
-    requestAnimationFrame(fitCard);
+    requestAnimationFrame(fitCard); requestAnimationFrame(fitClock);
   }
   function renderPick() {
     const d = el.cardPick.ownerDocument, item = (label, meta, onPick, cls) => {
@@ -7013,6 +7024,7 @@ const UI = (() => {
     else if (e.key === 'Enter' && e.target === el.editMin) { e.preventDefault(); saveEdit(); }
   });
   window.addEventListener('resize', fitCard);
+  window.addEventListener('resize', () => requestAnimationFrame(fitClock));
   el.pushBtn.addEventListener('click', () => { pushPref = !cardPushed; renderCard(); });
 
   /* page size: drag the grip under the timer down to make everything on this page bigger (remembered) */
@@ -7024,7 +7036,7 @@ const UI = (() => {
     const base = el.panel.getBoundingClientRect(), roomW = (innerWidth - 32) / Math.max(1, base.width);
     const z = Math.max(1, Math.min(pageZoom, roomW, 2.5));
     st.setProperty('--pz', z.toFixed(3)); grip.setAttribute('aria-valuenow', String(Math.round(z * 100)));
-    theme().renderer.invalidate(); requestAnimationFrame(fitCard);
+    theme().renderer.invalidate(); requestAnimationFrame(fitCard); requestAnimationFrame(fitClock);
   }
   let gripFrom = null;
   grip.addEventListener('pointerdown', e => { e.preventDefault(); grip.setPointerCapture(e.pointerId); grip.classList.add('drag'); gripFrom = { y: e.clientY, z: pageZoom, h: el.panel.getBoundingClientRect().height }; });
@@ -7058,7 +7070,7 @@ const UI = (() => {
   try { const v = parseFloat(localStorage.getItem(SPLIT_KEY)); if (v > 0.1 && v < 0.85) splitFrac = v; } catch (e) {}
   const clampSplit = px => Math.max(240, Math.min(innerWidth * 0.75, px));
   function applySplit() { if (splitFrac) el.app.style.setProperty('--split', Math.round(clampSplit(splitFrac * innerWidth)) + 'px'); else el.app.style.removeProperty('--split'); }
-  function afterSplit() { cancelAnimationFrame(splitRaf); splitRaf = requestAnimationFrame(() => { fitText(); fitPrompt(); fitCard(); theme().renderer.invalidate(); }); }
+  function afterSplit() { cancelAnimationFrame(splitRaf); splitRaf = requestAnimationFrame(() => { fitText(); fitPrompt(); fitCard(); fitClock(); theme().renderer.invalidate(); }); }
   function setSplitPx(px) { splitFrac = clampSplit(px) / innerWidth; applySplit(); afterSplit(); }
   const saveSplit = () => { try { if (splitFrac) localStorage.setItem(SPLIT_KEY, String(splitFrac)); else localStorage.removeItem(SPLIT_KEY); } catch (e) {} };
   split.addEventListener('pointerdown', e => { e.preventDefault(); split.setPointerCapture(e.pointerId); split.classList.add('drag'); });
@@ -7108,6 +7120,7 @@ const UI = (() => {
   /** Switch the whole look: tokens, renderer, banners, cue style, music set (restoring that set's last track). */
   function setTheme(id, persist = true) {
     themeId = Themes.get(id).id;
+    el.clockWrap.classList.remove('ring-left');                // Sci-Fi's ring layout; its renderer sets it again
     const th = theme(), set = th.music.set;
     AudioEngine.setCueStyle(th.cues);
     applyLook();
@@ -7120,7 +7133,7 @@ const UI = (() => {
     buildSettings();
     if (timer.running) syncState('style');                     // re-arm the cues in the new style
     if (persist) { settings.theme = th.id; saveSettings(); }
-    requestAnimationFrame(() => { fitText(); fitPrompt(); fitBrand(); }); setTimeout(fitBrand, 400);   // again once the vibe's fonts have loaded
+    requestAnimationFrame(() => { fitText(); fitPrompt(); fitBrand(); fitClock(); }); setTimeout(() => { fitBrand(); fitClock(); }, 400);   // again once the vibe's fonts have loaded
   }
   /* the Vibes picker: simple first, then 8-bit and Synthwave; five to a row, balanced by label length */
   const VIBES = ['basic', 'sand', 'wedge', '8bit', 'synth', 'sunrise', 'grow', 'gameshow', 'rain', 'scifi'];
@@ -7261,11 +7274,11 @@ const UI = (() => {
     const de = document.documentElement;
     if (!document.fullscreenElement && de.requestFullscreen) de.requestFullscreen().catch(() => {});
     renderCard();
-    requestAnimationFrame(() => { fitText(); fitPrompt(); fitCard(); theme().renderer.invalidate(); }); setTimeout(fitCard, 350);   // again once full screen has settled
+    requestAnimationFrame(() => { fitText(); fitPrompt(); fitCard(); theme().renderer.invalidate(); }); setTimeout(() => { fitCard(); fitClock(); }, 350);   // again once full screen has settled
   }
   function exitFacil() {
     el.app.classList.remove('view-facil'); setMenu(false); setMusicMenu(false);
-    renderCard(); requestAnimationFrame(() => { theme().renderer.invalidate(); });
+    renderCard(); requestAnimationFrame(() => { theme().renderer.invalidate(); fitClock(); });
     if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
   }
   function toggleFacil() { el.app.classList.contains('view-facil') ? exitFacil() : enterFacil(); }
@@ -7275,7 +7288,7 @@ const UI = (() => {
   function fitText() {
     const ta = el.text;
     if (!el.app.classList.contains('view-facil') || ta.hidden) return;
-    let lo = 22, hi = 96;
+    let lo = 22, hi = Math.max(23, Math.min(96, ta.clientWidth / 7));   // never so big that ordinary words split across lines
     while (hi - lo > 1) {
       const mid = (lo + hi) >> 1;
       ta.style.fontSize = mid + 'px';
@@ -7336,6 +7349,7 @@ const UI = (() => {
     d.body.appendChild(el.panel);
     pipWin.addEventListener('resize', fitPrompt);
     pipWin.addEventListener('resize', fitCard);
+    pipWin.addEventListener('resize', () => requestAnimationFrame(fitClock));
     d.addEventListener('keydown', onKey);
     d.addEventListener('keyup', onKeyUp);
     d.addEventListener('pointerdown', saveIfOutside, true);
@@ -7354,10 +7368,10 @@ const UI = (() => {
       minimized = false;
       pipWin = null;
       theme().renderer.invalidate();
-      resizeFx(); restartLoop(); requestAnimationFrame(fitPrompt); requestAnimationFrame(fitCard);
+      resizeFx(); restartLoop(); requestAnimationFrame(fitPrompt); requestAnimationFrame(fitCard); requestAnimationFrame(fitClock);
     });
     theme().renderer.invalidate();
-    resizeFx(); restartLoop(); requestAnimationFrame(fitPrompt); requestAnimationFrame(fitCard);
+    resizeFx(); restartLoop(); requestAnimationFrame(fitPrompt); requestAnimationFrame(fitCard); setTimeout(fitClock, 150);
   }
   el.float.addEventListener('click', openFloat);
   // Chrome can also Float automatically when you switch away from this tab while music is playing
