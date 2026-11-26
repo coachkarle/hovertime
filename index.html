@@ -280,7 +280,10 @@ html[data-theme="8bit"] body.pip .prompt-strip span { font-size: 18px; }
 }
 .prompt-strip[hidden] { display: none; }
 .prompt-strip span { flex: 1; font-size: 17px; font-weight: 700; line-height: 1.25; color: var(--deep-ink); }
-#app.view-facil .prompt-strip { display: none; }
+#app.view-facil .prompt-strip { order: -1; margin: 34px 0 12px; flex: none; }
+#app.view-facil .panel:has(> .prompt-strip:not([hidden])) { justify-content: safe center; }
+html[data-theme="grow"] #app.view-facil .panel:has(> .prompt-strip:not([hidden])) .grow-scene { height: clamp(130px, 32vh, 400px); }   /* the tall plant gives the strip room */   /* never push the top off the screen when the strip adds height */   /* Full screen: above the timer, below the buttons */
+#app.view-facil .prompt-strip span { font-size: 22px; }
 .prompt-view { flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0; overflow: hidden; padding: 0 2%; }
 .prompt-view[hidden] { display: none; }
 .prompt-text { font-size: 72px; font-weight: 800; line-height: 1.12; color: var(--deep-teal); }
@@ -6981,19 +6984,14 @@ const UI = (() => {
   function showPrompt() {
     const txt = prompts.next();
     promptActive = true;
-    el.promptStripText.textContent = txt; el.promptStrip.hidden = false;
-    el.promptText.textContent = txt; el.promptView.hidden = false;
-    el.instr.classList.add('prompting');
-    el.promptNext.hidden = el.promptDone.hidden = false; el.clear.hidden = true;
+    el.promptStripText.textContent = txt; el.promptStrip.hidden = false;   // Pair up stays a strip with the timer, in Full screen too (the big panel keeps your directions)
     requestAnimationFrame(fitPrompt); syncBuilder();
   }
   function dismissPrompt() {
     if (!promptActive) return;
     promptActive = false;
-    el.promptStrip.hidden = true; el.promptView.hidden = true;
-    el.instr.classList.remove('prompting');
-    el.promptNext.hidden = el.promptDone.hidden = true; el.clear.hidden = false;
-    requestAnimationFrame(fitText); syncBuilder(); requestAnimationFrame(fitCard);
+    el.promptStrip.hidden = true;
+    syncBuilder(); requestAnimationFrame(fitCard);
   }
   function fitStrip() {                              // the Pair up strip never runs past two lines: step the type down until it fits
     const t = el.promptStripText; t.style.fontSize = '';
@@ -7037,7 +7035,7 @@ const UI = (() => {
     cardBack: $('cardBack'), backAt: $('backAt'), backLeft: $('backLeft'), cardPick: $('cardPick'), cardEdit: $('cardEdit'),
     cardTitleText: $('cardTitleText'), editBtn: $('btnCardEdit'), cardMinBtn: $('btnCardMin'), timerMinBtn: $('btnTimerMin'),
     pushBtn: $('btnCardPush'), fbTimer: $('fbTimer'), fbCard: $('fbCard'), fbPair: $('fbPair'),
-    editTitle: $('editTitle'), editText: $('editText'), editMin: $('editMin'), editRestore: $('btnEditRestore'), editDelete: $('btnEditDelete') });
+    editTitle: $('editTitle'), editText: $('editText'), editMin: $('editMin'), editRestore: $('btnEditRestore'), editDelete: $('btnEditDelete'), editNew: $('btnEditNew') });
   const CARDS_KEY = 'ht-cards';
   const cleanCard = c => ({ title: String(c.title || '').trim().slice(0, 80) || 'Note', min: Math.max(0, Math.min(180, Math.round(+c.min || 0))),
     text: (typeof c.text === 'string' ? c.text : Array.isArray(c.steps) ? num(c.steps.map(String)) : '').replace(/\s+$/, '').slice(0, 1500) });   // older saves kept a list of steps
@@ -7197,7 +7195,7 @@ const UI = (() => {
     if (!cur) return;
     editingNew = isNew;
     el.editTitle.value = cur.title; el.editMin.value = cur.min || ''; el.editText.value = cur.text;
-    el.editRestore.hidden = !(cur.builtin && cur.edited); el.editDelete.hidden = cur.builtin; $('btnEditNew').hidden = isNew;
+    el.editRestore.hidden = !(cur.builtin && cur.edited); el.editDelete.hidden = cur.builtin; el.editNew.hidden = isNew;   // (el.*, not $(): in Float these live in the Float window)
     cardMode = 'edit'; cardMin = false; renderCard();
     el.editText.focus(); el.editText.setSelectionRange(el.editText.value.length, el.editText.value.length);
   }
@@ -7257,7 +7255,7 @@ const UI = (() => {
   el.cardTitle.addEventListener('click', () => { if (cardMode === 'edit') return; cardMode = cardMode === 'pick' && cur ? 'view' : 'pick'; cardMin = false; renderCard(); });
   el.editBtn.addEventListener('click', () => startEdit());
   $('btnEditDone').addEventListener('click', saveEdit);
-  $('btnEditNew').addEventListener('click', saveAsNew);
+  el.editNew.addEventListener('click', saveAsNew);
   $('btnEditCancel').addEventListener('click', cancelEdit);
   el.editRestore.addEventListener('click', () => { if (!cur) return; const before = cur.min; delete cardStore.edits[cur.id]; saveCards(); cardMode = 'view'; renderCard(); applyMinutes(cur.min, before); });
   el.editDelete.addEventListener('click', () => { if (!cur || cur.builtin) return; cardStore.custom = cardStore.custom.filter(x => x.id !== cur.id); saveCards(); cardId = null; cardMode = 'pick'; renderCard(); });
