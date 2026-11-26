@@ -434,6 +434,9 @@ body.pip .music-menu.open {
 .card-text .ln { display: flex; gap: .45em; }
 .card-text .ln + .ln { margin-top: .35em; }
 .card-text .ln.gap { height: .5em; }
+.card-text .ln[data-i] { cursor: pointer; padding: 1px 6px; margin-left: -6px; border-radius: 6px; }
+.card-text .ln[data-i]:hover { box-shadow: inset 0 0 0 1px var(--chip-line); }
+.card-text .ln.on { background: var(--accent); color: var(--on-accent); box-shadow: none; }
 .card-text .mk { flex: none; min-width: 1.1em; font-variant-numeric: tabular-nums; }
 .card-text .mk.bul { min-width: .55em; }
 .card-back { margin: 4px 6px 2px 0; }
@@ -1597,7 +1600,7 @@ html.touch .page-grip { display: none !important; }
         <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds.</span></li>
         <li class="guide-float"><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
         <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Full screen</b>: the timer beside big directions or your card; drag the divider to resize.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
-        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too), click its text to edit it, or jot a quick note. <b>Break</b> shows when everyone’s back.</span></li>
+        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too), click a line to highlight it, double-click to edit, or jot a quick note. <b>Break</b> shows when everyone’s back.</span></li>
         <li><b>Set the time</b><span>Tap or click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>.<span class="keys-only"> Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></span></li>
         <li><b>Make it yours</b><span>⚙ has common school colors, fonts, and palettes.</span></li>
       </ol>
@@ -1606,7 +1609,7 @@ html.touch .page-grip { display: none !important; }
         <dt><kbd>Space</kbd></dt><dd>Start / pause</dd><dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>±1 minute</dd>
         <dt><kbd>R</kbd></dt><dd>Reset</dd><dt><kbd>M</kbd></dt><dd>Music on / off</dd>
         <dt><kbd>G</kbd></dt><dd>Pair up prompt</dd><dt><kbd>F</kbd></dt><dd>Full screen</dd>
-        <dt><kbd>C</kbd></dt><dd>Card on / off</dd>
+        <dt><kbd>C</kbd></dt><dd>Card on / off</dd><dt><kbd>N</kbd></dt><dd>Highlight the next line</dd>
         <dt><kbd>Esc</kbd></dt><dd>Hide the prompt</dd>
       </dl>
     </aside>
@@ -1699,7 +1702,7 @@ html.touch .page-grip { display: none !important; }
       </div>
       <div class="card-body" id="cardBody">
         <div class="card-back" id="cardBack" role="status" hidden><b id="backAt"></b><span id="backLeft"></span></div>
-        <div class="card-text" id="cardText" title="Click to edit"></div>
+        <div class="card-text" id="cardText" title="Click a line to highlight it (N for the next one). Double-click to edit."></div>
       </div>
       <div class="card-pick" id="cardPick" role="menu" aria-label="Cards" hidden></div>
       <div class="card-edit" id="cardEdit" hidden>
@@ -1785,7 +1788,7 @@ html.touch .page-grip { display: none !important; }
 
     <p class="hints" id="hints" hidden>
       <kbd>Space</kbd> start/pause · <kbd>↑</kbd><kbd>↓</kbd> ±1 min · <kbd>1</kbd>–<kbd>9</kbd> minutes (<kbd>0</kbd> = 10) ·
-      <kbd>R</kbd> reset · <kbd>M</kbd> music · <kbd>F</kbd> full screen · <kbd>G</kbd> partner prompt · <kbd>C</kbd> card · <kbd>Esc</kbd> hide prompt · paste a screenshot
+      <kbd>R</kbd> reset · <kbd>M</kbd> music · <kbd>F</kbd> full screen · <kbd>G</kbd> partner prompt · <kbd>C</kbd> card · <kbd>N</kbd> next line · <kbd>Esc</kbd> hide prompt · paste a screenshot
     </p>
   </section>
 
@@ -6790,6 +6793,7 @@ const UI = (() => {
     if (k === 'f' || k === 'F') { toggleFacil(); return; }
     if (k === 'g' || k === 'G') { act.prompt(); return; }
     if (k === 'c' || k === 'C') { setCard(!cardOn); return; }
+    if (k === 'n' || k === 'N') { nextLine(); return; }
     if (k === 'Escape' && (menuOpen() || musicMenuOpen())) { setMenu(false); setMusicMenu(false); return; }
     if (k === 'Escape' && document.body.classList.contains('full')) { exitFull(); return; }
     if (k === 'Escape' && promptActive) { dismissPrompt(); return; }
@@ -6978,7 +6982,7 @@ const UI = (() => {
     return c ? { ...c, builtin: false } : null;
   }
   const allCards = () => [...PROTOCOLS.map(p => cardById(p.id)), ...cardStore.custom.map(c => cardById(c.id))];
-  let cardOn = false, cardMin = false, timerMin = false, cardMode = 'view', cardId = null, cur = null, lastBack = '';
+  let cardOn = false, cardMin = false, timerMin = false, cardMode = 'view', cardId = null, cur = null, lastBack = '', lineOn = -1;
   const clockFmt = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' });
   const wallTime = ms => clockFmt.formatToParts(new Date(ms)).filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();   // "10:42"
 
@@ -7020,8 +7024,10 @@ const UI = (() => {
       el.cardBack.hidden = cur.kind !== 'break';
       el.cardText.hidden = cur.kind === 'break' && !cur.text;
       const d = el.cardText.ownerDocument;
+      let li = -1;                                         // index among the lines with text (blank lines are spacing only)
       el.cardText.replaceChildren(...(cur.text ? cur.text.split('\n') : []).map(line => {
         const div = d.createElement('div'); div.className = 'ln';
+        if (line.trim()) { li++; div.dataset.i = li; if (li === lineOn) { div.classList.add('on'); div.setAttribute('aria-current', 'step'); } }
         const m = line.match(/^\s*(\d+[.)]|[-•*])\s+(.*)$/);
         if (!line.trim()) div.className = 'ln gap';
         else if (m) { const mk = d.createElement('span'), tx = d.createElement('span'); const bul = /^[-•*]$/.test(m[1]); mk.className = bul ? 'mk bul' : 'mk'; mk.textContent = bul ? '•' : m[1]; tx.textContent = m[2]; div.append(mk, tx); }
@@ -7108,7 +7114,7 @@ const UI = (() => {
   }
   function loadCard(id) {
     const c = cardById(id); if (!c) return;
-    cardId = id; cardMode = 'view'; cardMin = false;
+    cardId = id; cardMode = 'view'; cardMin = false; lineOn = -1;
     if (c.min > 0) { if (timer.running) toast('Card loaded. The timer kept running.'); else { lastText = ''; timer.load(c.min * 60000); } }
     window.htCount && htCount('card/' + (c.builtin ? c.id : 'custom'));    // which protocols get used (the name only, never your text)
     renderCard();
@@ -7127,7 +7133,23 @@ const UI = (() => {
   el.cardEdit.addEventListener('focusout', () => setTimeout(() => {
     if (cardMode === 'edit' && !el.cardEdit.contains(el.cardEdit.ownerDocument.activeElement)) saveEdit();
   }, 0));
-  el.cardText.addEventListener('click', () => { if (cardMode === 'view' && cur) startEdit(); });
+  // click a line to highlight it (again to clear); double-click, Edit, or clicking an empty note opens the editor
+  el.cardText.addEventListener('click', e => {
+    if (cardMode !== 'view' || !cur) return;
+    const ln = e.target.closest('.ln[data-i]');
+    if (!ln) { if (!cur.text) startEdit(); return; }
+    const i = +ln.dataset.i; setLine(lineOn === i ? -1 : i);
+  });
+  function setLine(i) {                                 // marks the line in place (no re-render, so a double-click still lands on the same line)
+    lineOn = i;
+    el.cardText.querySelectorAll('.ln[data-i]').forEach(n => { const on = +n.dataset.i === i; n.classList.toggle('on', on); if (on) n.setAttribute('aria-current', 'step'); else n.removeAttribute('aria-current'); });
+  }
+  el.cardText.addEventListener('dblclick', () => { if (cardMode === 'view' && cur) { lineOn = -1; startEdit(); } });
+  function nextLine() {
+    if (!cardOn || !cur || cardMode !== 'view' || !cur.text) return;
+    const n = cur.text.split('\n').filter(x => x.trim()).length; if (!n) return;
+    setLine(lineOn + 1 >= n ? -1 : lineOn + 1);
+  }
   function saveIfOutside(e) { if (cardMode === 'edit' && !el.card.contains(e.target)) saveEdit(); }   // a click anywhere else saves the note
   document.addEventListener('pointerdown', saveIfOutside, true);
   function applyMinutes(min, before) { if (min > 0 && min !== before && !timer.running) { lastText = ''; timer.load(min * 60000); } }
@@ -7135,7 +7157,7 @@ const UI = (() => {
     if (!cur) return;
     const v = formCard(), before = cur.min;
     if (cur.builtin) cardStore.edits[cur.id] = v; else Object.assign(cardStore.custom.find(x => x.id === cur.id), v);
-    saveCards(); cardMode = 'view'; editingNew = false; renderCard(); applyMinutes(v.min, before);
+    saveCards(); cardMode = 'view'; editingNew = false; lineOn = -1; renderCard(); applyMinutes(v.min, before);
   }
   function saveAsNew() {
     const v = formCard(), id = 'c' + Date.now().toString(36), before = cur ? cur.min : 0;
