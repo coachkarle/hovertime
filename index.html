@@ -461,6 +461,11 @@ body.pip .music-menu.open {
 .edit-more { display: flex; flex-wrap: wrap; gap: 2px 10px; margin-left: auto; }
 .edit-link { appearance: none; border: 0; background: none; color: inherit; font: 600 13px/1.3 var(--font); text-decoration: underline; text-underline-offset: 2px; padding: 4px 0; cursor: pointer; }
 .edit-link[hidden] { display: none; }
+.pick-row { display: flex; align-items: center; gap: 2px; }
+.pick-row .pick-item { flex: 1; min-width: 0; }
+.pick-del { flex: none; min-width: 28px; height: 28px; padding: 0 6px; appearance: none; border: 0; border-radius: 7px; background: none; color: inherit; font: 700 15px/1 var(--font); cursor: pointer; opacity: .75; }
+.pick-del:hover, .pick-del:focus-visible { opacity: 1; background: var(--btn); color: var(--btn-ink); }
+.pick-del.sure { opacity: 1; background: var(--urgent); color: var(--on-urgent); font-size: 12.5px; }
 .pick-head { margin: 6px 8px 2px; font-size: 11.5px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
 .pick-head:first-child { margin-top: 0; }
 .card.min .card-body, .card.min .card-pick, .card.min .card-edit { display: none; }
@@ -2670,12 +2675,12 @@ const Tracks = (() => {
   };
 
   /* =========================================================
-     TRACK 3: AIRY (66 BPM, D Lydian pads, felt arpeggio, bells)
+     TRACK 3: AIRY (72 BPM, D Lydian pads, felt arpeggio, bells; a soft felt-piano melody and a shaker in some sections)
      ========================================================= */
   const airy = {
-    id: 'airy', name: 'Airy', bpm: 66, tonic: 74, trim: 1.47,
+    id: 'airy', name: 'Airy', bpm: 72, tonic: 74, trim: 1.36,
     create(ctx, out, R, L, startStep = 0) {
-      const H = helpers(R), S = L.scope(), s16 = 60 / 66 / 4;
+      const H = helpers(R), S = L.scope(), s16 = 60 / 72 / 4;
       const hum = ms => (R() * 2 - 1) * ms / 1000;
 
       const verb = S.reverb({ rt60: 5, pre: 0.05, lpStart: 12000, lpEnd: 4500, hp: 260, lp: 12000, level: 0.8, shelf: 5 });
@@ -2692,7 +2697,14 @@ const Tracks = (() => {
       const shim = S.gain(1), shHP = S.filter('highpass', 700, 0.6), shLP = S.filter('lowpass', 7500, 0.5), shSend = S.gain(0.7);
       L.chain(shim, shHP, shLP, out); shLP.connect(shSend); shSend.connect(verb.input);
       S.lfo(shim.gain, 0.031, 0.35);
-      S.hiss(out, 0.011, { hp: 3500, lp: 13000 });
+      S.hiss(out, 0.008, { hp: 3500, lp: 13000 });
+      const mel = S.gain(1), mHP = S.filter('highpass', 220, 0.6), mSend = S.gain(0.55);
+      L.chain(mel, mHP, out); mHP.connect(mSend); mSend.connect(verb.input);
+      const perc = S.gain(1), pcLP = S.filter('lowpass', 7000, 0.5), pcSend = S.gain(0.25);
+      L.chain(perc, pcLP, out); pcLP.connect(pcSend); pcSend.connect(verb.input);
+      const RHY = [[0, 4, 6, 10], [2, 6, 8, 12], [0, 6, 10], [0, 3, 8, 12], [4, 8, 10, 14]];
+      const history = [];
+      let melody = false, shaker = false, call = null;
 
       const CH = {
         D:  { b: 38, v: [57, 61, 64, 66, 73] },
@@ -2724,8 +2736,21 @@ const Tracks = (() => {
             onChord(t);
           }
           if (s === 0 && bar % 16 === 0 && bar > 0) arpMode = H.weighted({ 0: 1, 1: 4, 2: 2 }) | 0;
+          if (s === 0 && bar % 8 === 0) { melody = bar >= 8 && (melody ? H.chance(0.45) : H.chance(0.75)); shaker = bar >= 8 && H.chance(0.45); }
+          if (s === 0 && melody) {                         // a soft call and answer over the pads
+            const sc = H.fit(BELL, CH[chord].v);
+            if (bar % 2 === 0) {
+              const pos = H.pick(RHY), notes = H.phrase(sc, pos.length, Math.min(sc.length - 1, 1 + Math.floor(R() * 3)), history);
+              call = notes;
+              notes.forEach((m, k) => L.felt(mel, m, t + pos[k] * s16 + hum(8), s16 * 6, H.rr(0.42, 0.55), { bright: 1700, level: 0.24, decay: 3.6 }));
+            } else if (call && H.chance(0.65)) {
+              const land = H.pick(sc.filter(n => CH[chord].v.some(c => (c - n) % 12 === 0)).concat(sc[1]));
+              [[2, call[call.length - 1] ?? land], [8, land]].forEach(([p, m]) => L.felt(mel, m, t + p * s16 + hum(8), s16 * 8, H.rr(0.36, 0.46), { bright: 1600, level: 0.24, decay: 4 }));
+            }
+          }
+          if (shaker && s % 2 === 0) L.shaker(perc, t + hum(6), s % 4 === 2 ? 0.5 : 0.28, { level: 0.06 });
           if (s % 2 === 0 && arpMode > 0 && arpTones.length) {
-            const dens = (arpMode === 2 ? 0.62 : 0.48) + 0.14 * Math.sin(2 * Math.PI * bar / 13);
+            const dens = ((arpMode === 2 ? 0.62 : 0.48) + 0.14 * Math.sin(2 * Math.PI * bar / 13)) * (melody ? 0.55 : 1);   // the ripple thins out under the melody
             if (H.chance(dens)) {
               arpIdx += arpDir;
               if (arpIdx >= arpTones.length - 1 || arpIdx <= 0 || H.chance(0.15)) arpDir *= -1;
@@ -2747,7 +2772,7 @@ const Tracks = (() => {
      pumping chord stabs, sparse echoing lead
      ========================================================= */
   const upbeat = {
-    id: 'upbeat', name: 'Upbeat', bpm: 112, tonic: 70, trim: 2.75,
+    id: 'upbeat', name: 'Upbeat', bpm: 112, tonic: 70, trim: 2.8,
     create(ctx, out, R, L, startStep = 0) {
       const H = helpers(R), S = L.scope(), s16 = 60 / 112 / 4;
       const swing = (2 * 0.54 - 1) * s16, sw = k => (k % 2 ? swing : 0);
@@ -2796,8 +2821,23 @@ const Tracks = (() => {
       const HATS16 = [[0, 0, 1, 0, 0, 0, 1, 0], [1, 0, 1, 0, 1, 0, 1, 1], [0, 1, 0, 0, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0]];
       const SCALE = [70, 72, 74, 77, 79, 82, 84, 86];   // Bb major pentatonic
       let bankIdx = 0, prevV = null, cur = Gm9, bp = 0, sp = 0, hv = 0, breakdown = 0, noStabs = 0, leadRest = 4, history = [];
+      let hook = null, shaker = false, fillBar = -1, crashNext = false;   // hook: one short motif per 8-bar section, repeated so it sticks
+      const snap = (m, sc) => sc.reduce((a, n) => Math.abs(n - m) < Math.abs(a - m) ? n : a, sc[0]);
+      function riser(t, dur) {                            // filtered noise sweeping up out of a breakdown
+        const src = ctx.createBufferSource(); src.buffer = L.noise('white', 4); src.loop = true;
+        const bpf = L.filter('bandpass', 500, 1.3), g = L.gain(0);
+        bpf.frequency.setValueAtTime(500, t); bpf.frequency.exponentialRampToValueAtTime(7000, t + dur);
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.05, t + dur * 0.95); g.gain.linearRampToValueAtTime(0, t + dur + 0.05);
+        L.chain(src, bpf, g, out); g.connect(pSend); src.start(t); src.stop(t + dur + 0.1);
+        src.onended = () => [src, bpf, g].forEach(n => n.disconnect());
+      }
 
       function onBar(bar, t) {
+        if (bar % 8 === 0) {                              // sections: a hook in most, a shaker in some
+          hook = bar >= 8 && H.chance(hook ? 0.6 : 0.8) ? { pos: H.pick([[0, 2, 6, 8, 10], [2, 4, 6, 10], [0, 3, 6, 10, 12], [2, 6, 7, 10]]), notes: null } : null;
+          shaker = bar >= 8 && H.chance(0.45);
+        }
+        if (bar % 8 === 7) fillBar = H.chance(0.55) ? bar : -1;
         if (bar % 8 === 0 && bar > 0) {
           if (H.chance(0.45)) bankIdx = H.pick([0, 1, 2].filter(b => b !== bankIdx));
           if (H.chance(0.15)) {                             // 4-bar breakdown: no kick, pads open up
@@ -2826,8 +2866,22 @@ const Tracks = (() => {
           BASS[bp].forEach(([off, len, iv]) =>
             L.bass(bassBus, cur.b + iv, t + off * s16 + sw(off) + 0.004, len * s16 * 0.85, off === 0 ? 0.95 : H.rr(0.65, 0.85), { saw: 0.55, lp: 900, level: 0.3 }));
         }
+        if (breakdown === 1) { riser(t, 16 * s16); crashNext = true; }   // build out of the breakdown, crash on the drop
+        if (hook && !breakdown) {
+          const sc = H.fit(SCALE, [...cur.v, cur.b]);
+          if (!hook.notes) hook.notes = H.phrase(sc, hook.pos.length, Math.min(sc.length - 1, 1 + Math.floor(R() * 4)), history);
+          if (bar % 2 === 0) {                            // the hook, fitted to this bar's chord; the last pair of bars changes its ending
+            hook.notes.forEach((m, k) => {
+              const nn = bar % 8 === 6 && k === hook.notes.length - 1 ? snap(m + 3, sc) : snap(m, sc);
+              L.mallet(lead, 'glass', nn, t + hook.pos[k] * s16 + sw(hook.pos[k]) + hum(4), H.rr(0.5, 0.62), { level: 0.06, tau: 0.5 });
+            });
+          } else if (H.chance(0.5)) {                     // a short answer
+            const land = H.pick(sc.filter(n => cur.v.some(c => (c - n) % 12 === 0)).concat(sc[2]));
+            [[4, snap(hook.notes[hook.notes.length - 1] - 2, sc)], [6, land]].forEach(([p, m]) => L.mallet(lead, 'glass', m, t + p * s16 + sw(p) + hum(4), H.rr(0.42, 0.52), { level: 0.06, tau: 0.5 }));
+          }
+        }
         leadRest--;
-        if (leadRest <= 0 && H.chance(0.3 + 0.2 * Math.sin(2 * Math.PI * bar / 7))) {
+        if (!hook && leadRest <= 0 && H.chance(0.3 + 0.2 * Math.sin(2 * Math.PI * bar / 7))) {
           const sc = H.fit(SCALE, [...cur.v, cur.b]);
           const notes = H.phrase(sc, 3 + Math.floor(R() * 3), Math.min(sc.length - 1, 1 + Math.floor(R() * 4)), history);
           let pos = H.pick([2, 3, 6]);
@@ -2846,6 +2900,9 @@ const Tracks = (() => {
           const bar = Math.floor(i / 16), s = i % 16;
           if (s === 0) onBar(bar, t);
           const tt = t + sw(s), inBreak = breakdown > 0;
+          if (s === 0 && crashNext && !inBreak) { crashNext = false; L.hat(drums, t, 0.7, { decay: 0.55, level: 0.16, hp: 5000 }); }
+          if (!inBreak && fillBar === bar && s >= 12) L.snare(drums, tt + 0.004, 0.3 + (s - 12) * 0.15, { freq: 2100, decay: 0.08, lp: 7000, level: 0.2 });   // a fill into the next section
+          if (shaker && !inBreak && s % 2 === 1) L.shaker(drums, tt + hum(3), s % 4 === 3 ? 0.5 : 0.32, { level: 0.07 });
           if (!inBreak && s % 4 === 0) {
             L.kick(drums, t + hum(2), H.rr(0.9, 1), { f0: 125, f1: 54, decay: 0.24, level: 0.135 });
             pump.gain.setTargetAtTime(0.5, t, 0.006);
@@ -3303,6 +3360,21 @@ const Tracks = (() => {
           src.start(t, Math.random() * 3); src.stop(t + 0.5); o.start(t); o.stop(t + 0.3);
           src.onended = () => [src, b, h, g, o, og].forEach(n => n.disconnect());
         }
+        function crash(t, level) {                                       // a soft, airy crash that marks a new section
+          const src = ctx.createBufferSource(); src.buffer = L.noise('white', 4);
+          const h = L.filter('highpass', 5200, 0.6), g = L.gain(0);
+          g.gain.setValueAtTime(level, t); g.gain.setTargetAtTime(0, t, 0.45);
+          L.chain(src, h, g, drums); g.connect(snSend); src.start(t, Math.random() * 2); src.stop(t + 2.4);
+          src.onended = () => [src, h, g].forEach(n => n.disconnect());
+        }
+        function riser(t, dur, level) {                                  // filtered noise that sweeps up into the drums coming back
+          const src = ctx.createBufferSource(); src.buffer = L.noise('white', 4); src.loop = true;
+          const bp = L.filter('bandpass', 400, 1.4), g = L.gain(0);
+          bp.frequency.setValueAtTime(400, t); bp.frequency.exponentialRampToValueAtTime(6500, t + dur);
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(level, t + dur * 0.95); g.gain.linearRampToValueAtTime(0, t + dur + 0.05);
+          L.chain(src, bp, g, out); g.connect(padSend); src.start(t); src.stop(t + dur + 0.1);
+          src.onended = () => [src, bp, g].forEach(n => n.disconnect());
+        }
         function hat(t, level, open = false) {
           const src = ctx.createBufferSource(); src.buffer = L.noise('white', 4);
           const h = L.filter('highpass', 7500, 0.8), g = L.gain(0);
@@ -3313,15 +3385,33 @@ const Tracks = (() => {
 
         const SECTIONS = song.sections, WEIGHTS = song.weights;
         let secName = song.first, sec = SECTIONS[secName], cur = song.chords[sec.prog[0]], arpI = 0;
+        const seen = { [secName]: 1 };
+        let vary = 0, fill = false, sixteenths = false;
+        const plays = d => d === 'full' || d === 'half';
         function onBar(bar, t) {
           if (bar % 8 === 0 && bar > 0) {
             let next; do { next = H.weighted(WEIGHTS); } while (next === secName);
+            const wasQuiet = !plays(sec.drums);
             secName = next; sec = SECTIONS[next];
+            seen[next] = (seen[next] || 0) + 1;
+            vary = seen[next] > 1 ? H.pick([0, 1, 1, 2]) : 0;          // a tune you've heard gets a small twist the next time
+            sixteenths = sec.drums === 'full' && H.chance(0.45);
+            if (plays(sec.drums) && (wasQuiet || H.chance(0.6))) crash(t, V.hat * 1.6);
           }
           const b8 = bar % 8, barLen = 16 * s16;
           cur = song.chords[sec.prog[b8]];
+          fill = b8 === 7 && plays(sec.drums) && H.chance(0.6);
+          if (b8 === 6 && !plays(sec.drums)) riser(t, 2 * barLen, V.hat * 0.5);   // build into the next section
           cur[1].forEach(m => voice(padBus, 'sawtooth', m, t, barLen * 0.96, V.pad * sec.pad, { det: [-11, 0, 11], atk: 0.18, rel: 0.7 }));
-          if (sec.tune) sec.tune[b8].forEach(([st, m, len]) => voice(leadBus, 'sawtooth', m, t + st * s16, len * s16 * 0.94, V.lead, { det: [-7, 7], atk: 0.012, rel: 0.25, cut: 2400, env: 1600, q: 0.8, vib: 9 }));
+          if (sec.tune) sec.tune[b8].forEach(([st, m, len]) => {
+            const play = (mm, at, l) => voice(leadBus, 'sawtooth', mm, t + at * s16, l * s16 * 0.94, V.lead, { det: [-7, 7], atk: 0.012, rel: 0.25, cut: 2400, env: 1600, q: 0.8, vib: 9 });
+            if (vary === 2 && b8 >= 4 && m + 12 <= 91) { play(m + 12, st, len); return; }      // lift the second half an octave
+            if (vary === 1 && len >= 8) {                                                     // a long note turns to a neighbouring chord tone at the end
+              const near = cur[1].flatMap(n => [n + 12, n + 24]).filter(n => n !== m && Math.abs(n - m) <= 5).sort((a, b) => Math.abs(a - m) - Math.abs(b - m))[0];
+              if (near) { play(m, st, len - 3); play(near, st + len - 3, 3); return; }
+            }
+            play(m, st, len);
+          });
         }
         return {
           setTempo(mult) { s16 = BASE16 / mult; echo.delayTime.setValueAtTime(3 * s16, ctx.currentTime); },
@@ -3342,13 +3432,16 @@ const Tracks = (() => {
             const d = sec.drums;
             if (d === 'full') {
               if (s % 4 === 0) kick(t, V.kick);
-              if (s === 4 || s === 12) snare(t, V.snare);
+              if ((s === 4 || s === 12) && !(fill && s === 12)) snare(t, V.snare);
               if (s % 2 === 0) hat(t, V.hat * (s % 4 === 2 ? 1 : 0.6), s % 4 === 2 && bar % 2 === 1 && s === 14);
+              else if (sixteenths) hat(t, V.hat * 0.32);                   // light 16ths in some sections
             } else if (d === 'half') {
               if (s === 0 || (s === 10 && H.chance(0.5))) kick(t, V.kick);
               if (s === 8) snare(t, V.snare);
               if (s % 2 === 0) hat(t, V.hat * 0.7);
-            } else if (d === 'hats') {
+            }
+            if (fill && s >= 12) snare(t, V.snare * (0.45 + (s - 12) * 0.17));   // a snare fill into the next section
+            if (d === 'hats') {
               if (s === 0) kick(t, V.kick * 0.6);
               if (s % 2 === 0) hat(t, V.hat * 0.6);
             }
@@ -3359,7 +3452,7 @@ const Tracks = (() => {
     };
   }
   const synthSongs = [
-    { id: 'nightdrive', name: 'Night Drive', bpm: 100, tonic: 69, trim: 1.29, first: 'C',
+    { id: 'nightdrive', name: 'Night Drive', bpm: 100, tonic: 69, trim: 1.24, first: 'C',
       levels: { pad: 0.022, lead: 0.05, bass: 0.1, arp: 0.02, kick: 0.36, snare: 0.2, hat: 0.045 },
       chords: { Am: [45, [57, 60, 64]], F: [41, [57, 60, 65]], C: [36, [55, 60, 64]], G: [43, [55, 59, 62]], Em: [40, [55, 59, 64]] },
       sections: {},
@@ -3386,7 +3479,7 @@ const Tracks = (() => {
           [[0, 72, 12]],
         ],
       } },
-    { id: 'neonrun', name: 'Neon Run', bpm: 116, tonic: 64, trim: 1.27, first: 'C',
+    { id: 'neonrun', name: 'Neon Run', bpm: 116, tonic: 64, trim: 1.26, first: 'C',
       levels: { pad: 0.02, lead: 0.048, bass: 0.1, arp: 0.02, kick: 0.36, snare: 0.2, hat: 0.048 },
       chords: { Em: [40, [55, 59, 64]], C: [36, [55, 60, 64]], G: [43, [55, 59, 62]], D: [38, [54, 57, 62]], B: [47, [54, 59, 63]] },
       sections: {},
@@ -3413,7 +3506,7 @@ const Tracks = (() => {
           [[0, 78, 12]],
         ],
       } },
-    { id: 'horizon', name: 'Horizon', bpm: 88, tonic: 62, trim: 1.68, first: 'C',
+    { id: 'horizon', name: 'Horizon', bpm: 88, tonic: 62, trim: 1.7, first: 'C',
       levels: { pad: 0.026, lead: 0.05, bass: 0.1, arp: 0.018, kick: 0.38, snare: 0.22, hat: 0.04 },
       chords: { Dm: [38, [57, 62, 65]], Bb: [46, [58, 62, 65]], F: [41, [57, 60, 65]], C: [36, [55, 60, 64]], Gm: [43, [55, 58, 62]], A: [45, [57, 61, 64]] },
       sections: {}, half: true,
@@ -6862,7 +6955,6 @@ const UI = (() => {
     { id: 'shift', title: 'I Used to Think… Now I Think…', min: 5, text: num(['Write: “I used to think…”', 'Write: “Now I think…”', 'Share what changed your thinking.']) },
     { id: 'cec', title: 'Connect, Extend, Challenge', min: 6, text: 'Connect: How does this link to what you already know?\nExtend: What pushed your thinking further?\nChallenge: What still puzzles or concerns you?' },
     { id: 'headline', title: 'Headline', min: 4, text: num(['Sum up the big idea as a headline, 10 words max.', 'Share headlines at your table.', 'Choose one to share with the room.']) },
-    { id: 'lastword', title: 'Save the Last Word', min: 15, text: num(['Pick a line from the text that stands out to you.', 'One person reads theirs aloud, with no comment.', 'Each other person responds briefly.', 'The reader gets the last word. Then rotate.']) },
   ];
   Object.assign(el, { card: $('card'), cardBtn: $('btnCard'), cardTitle: $('cardTitle'), cardTime: $('cardTime'), cardBody: $('cardBody'), cardText: $('cardText'),
     cardBack: $('cardBack'), backAt: $('backAt'), backLeft: $('backLeft'), cardPick: $('cardPick'), cardEdit: $('cardEdit'),
@@ -6955,7 +7047,19 @@ const UI = (() => {
     el.cardPick.replaceChildren(
       ...cards.filter(c => c.builtin && c.kind === 'break').map(entry),
       head('Protocols'), ...cards.filter(c => c.builtin && c.kind !== 'break').map(entry),
-      ...(mine.length ? [head('Your cards'), ...mine.map(entry)] : []),
+      ...(mine.length ? [head('Your cards'), ...mine.map(c => {   // your cards: × asks once ("Delete?"), then deletes
+        const row = d.createElement('div'), del = d.createElement('button'); row.className = 'pick-row';
+        del.type = 'button'; del.className = 'pick-del'; del.textContent = '×'; del.title = 'Delete this card'; del.setAttribute('aria-label', `Delete ${c.title}`);
+        del.addEventListener('click', e => {
+          e.stopPropagation();
+          if (!del.classList.contains('sure')) { del.classList.add('sure'); del.textContent = 'Delete?'; return; }
+          cardStore.custom = cardStore.custom.filter(x => x.id !== c.id); saveCards();
+          if (cardId === c.id) cardId = null;
+          renderCard(); toast(`Deleted “${c.title}”`);
+        });
+        del.addEventListener('blur', () => { del.classList.remove('sure'); del.textContent = '×'; });
+        row.append(entry(c), del); return row;
+      })] : []),
       item('+ New note', '', newCard, 'new'));
   }
   /** Float, the big panel, and wide screens: the card fills its space and its text takes the largest size that fits */
