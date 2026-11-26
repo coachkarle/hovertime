@@ -3019,16 +3019,28 @@ const Tracks = (() => {
       };
       const WEIGHTS = { A: 2, A2: 1.5, B: 2, C: 2, D: 1 };
       let sec = SECTIONS.C, secName = 'C', cur = C.Am, arpDir = 1, arpIdx = 0;
+      const seen = { C: 1 };
+      let vary = 0, fill = false;
 
       function onBar(bar, t) {
         if (bar % 8 === 0 && bar > 0) {
           let next; do { next = H.weighted(WEIGHTS); } while (next === secName);
           secName = next; sec = SECTIONS[next];
+          seen[next] = (seen[next] || 0) + 1;
+          vary = seen[next] > 1 ? H.pick([0, 1, 2]) : 0;           // a tune you've heard comes back with a twist: a new tone color, or an octave up
         }
         const b8 = bar % 8;
         cur = C[sec.prog[b8]];
+        fill = b8 === 7 && sec.drums === 1 && H.chance(0.6);
         // tune
-        if (sec.tune) sec.tune[b8].forEach(([st, m, len]) => chip(lead, sec.wave, m + sec.oct, t + st * s16 + sw(st), len * s16 * 0.92, LEAD, 6));
+        if (sec.tune) sec.tune[b8].forEach(([st, m, len]) => {
+          const wave = vary === 1 ? (sec.wave === P50 ? P25 : P50) : sec.wave, up = vary === 2 && b8 >= 4 && m + sec.oct + 12 <= 93 ? 12 : 0;
+          chip(lead, wave, m + sec.oct + up, t + st * s16 + sw(st), len * s16 * 0.92, LEAD, 6);
+        });
+        if (!sec.tune && b8 === 7) {                        // a "power-up" sweep out of a breather section
+          const c = cur[1];
+          for (let k = 0; k < 8; k++) chip(arps, P12, c[k % c.length] + 12 + 12 * Math.floor(k / c.length), t + 12 * s16 + k * s16 / 2, s16 * 0.45, ARP * 1.4);
+        }
         // triangle bass: octave bounce on 8ths, a 5th on beat 4 some bars
         const root = cur[0];
         for (let st = 0; st < 16; st += 2) {
@@ -3052,10 +3064,15 @@ const Tracks = (() => {
             arpIdx = Math.max(0, Math.min(tones.length - 1, arpIdx));
             chip(arps, P12, tones[arpIdx], tt, s16 * 0.8, ARP * (s % 4 === 0 ? 1 : 0.75));
           }
-          if (H.chance(sec.drums)) {
+          if (sec.drums === 1) {
             if (s === 0 || s === 8 || (s === 10 && bar % 2)) kick(tt, KICK);
-            if (s === 4 || s === 12) noiseHit(tt, 900, 1800, 0.09, SNARE);
+            if ((s === 4 || s === 12) && !(fill && s === 12)) noiseHit(tt, 900, 1800, 0.09, SNARE);
             if (s % 2 === 0) noiseHit(tt, 7000, 9000, s % 4 === 2 ? 0.06 : 0.025, HAT);
+            if (fill && s >= 12) noiseHit(tt, 900, 1900, 0.07, SNARE * (0.5 + (s - 12) * 0.17));   // snare roll into the next section
+          } else {                                          // lighter sections: a softer steady beat (it used to drop hits at random)
+            if (s === 0) kick(tt, KICK * 0.8);
+            if (s === 12) noiseHit(tt, 900, 1800, 0.08, SNARE * 0.7);
+            if (s % 4 === 2) noiseHit(tt, 7000, 9000, 0.04, HAT * 0.8);
           }
         },
         dispose(t) { S.stop(t); setTimeout(() => S.disconnect(), 9000); },
@@ -3135,15 +3152,22 @@ const Tracks = (() => {
         const chordAt = (bar, s) => { const c = sec.prog[bar % 8]; return song.chords[Array.isArray(c) ? c[s < half ? 0 : 1] : c]; };
         const has = h => sec.harm === h || (Array.isArray(sec.harm) && sec.harm.includes(h));   // sections can layer parts, e.g. ['pad', 'arps']
 
+        const seen = { [secName]: 1 };
+        let vary = 0, fill = false;
         function onBar(bar, t) {
           if (bar % 8 === 0 && bar > 0) {
             let next; do { next = H.weighted(song.weights); } while (next === secName);
             secName = next; sec = song.sections[next];
+            seen[next] = (seen[next] || 0) + 1;
+            vary = seen[next] > 1 ? H.pick([0, 1, 2]) : 0;         // a returning tune: a new pulse width, or its second half up an octave
           }
           const b8 = bar % 8, mSw = song.melodySwing || 0.5;
+          fill = b8 === 7 && (sec.drums === 'bouncy' || sec.drums === 'calypso') && H.chance(0.6);
           if (sec.tune) song.tunes[sec.tune][b8].forEach(([s, m, len]) => {
             const tt = t + s * st + swing(mSw, s), d = len * st * (song.staccato || 0.9), long = len >= (song.slideMin || 99);
-            chip(lead, WAVES[sec.wave || song.leadWave || 'p50'], m + (sec.oct || 0), tt, d, V.lead,
+            const w = sec.wave || song.leadWave || 'p50', up = vary === 2 && b8 >= 4 && m + (sec.oct || 0) + 12 <= 93 ? 12 : 0;
+            m += up;
+            chip(lead, WAVES[vary === 1 ? (w === 'p25' ? 'p50' : 'p25') : w], m + (sec.oct || 0), tt, d, V.lead,
                  { vib: song.vib || 0, slide: long ? 1 : (song.grace && R() < song.grace ? 2 : 0), pluck: song.pluck });
             if (song.echo) chip(lead, WAVES.p25, m + (sec.oct || 0), tt + song.echo * st, d, V.lead * 0.32, { pluck: song.pluck });   // second-channel echo
           });
@@ -3198,6 +3222,7 @@ const Tracks = (() => {
                 if (s === half) noiseHit(tt, 7000, 9000, 0.04, V.hat * 0.8);
                 break;
             }
+            if (fill && s >= SPB - 4) noiseHit(tt, 1100, 2400, 0.06, V.snare * (0.5 + (s - SPB + 4) * 0.17));   // a snare fill into the next section
           },
           dispose(t) { S.stop(t); setTimeout(() => S.disconnect(), 9000); },
         };
@@ -3664,16 +3689,21 @@ const Tracks = (() => {
         const SECTIONS = song.sections;
         let secName = song.first, sec = SECTIONS[secName], cur = song.chords[sec.prog[0]], nextRoot = cur[0];
         const chordAt = (bar, s) => { const c = sec.prog[bar % 8]; return song.chords[Array.isArray(c) ? c[s < 8 ? 0 : 1] : c]; };
+        const seen = { [secName]: 1 };
+        let vary = 0;
         function onBar(bar, t) {
           if (bar % 8 === 0 && bar > 0) {
             let next; do { next = H.weighted(song.weights); } while (next === secName);
             secName = next; sec = SECTIONS[next];
+            seen[next] = (seen[next] || 0) + 1;
+            vary = seen[next] > 1 && H.chance(0.5) ? 1 : 0;         // a returning tune sometimes climbs an octave for its last two bars
           }
           if (song.lift && bar % 16 === 0 && bar > 0) lift = (lift + 2) % 6;
           const b8 = bar % 8;
           cur = chordAt(bar, 0); nextRoot = song.chords[[].concat(sec.prog[(b8 + 1) % 8])[0]][0];
           const lead = { saw: synLead, pluck, cello }[song.leadVoice] || horn, shift = song.shift || 0;
-          if (sec.tune) song.tunes[sec.tune][b8].forEach(([st, m, len]) => lead(m + lift + shift, t + st * s16 + sw(st), len * s16 * 0.9, V.lead));
+          if (sec.tune) song.tunes[sec.tune][b8].forEach(([st, m, len]) => lead(m + lift + shift + (vary && b8 >= 6 && m + lift + shift + 12 <= 88 ? 12 : 0), t + st * s16 + sw(st), len * s16 * 0.9, V.lead));
+          if (song.groove === 'tension' && !sec.tune && b8 === 6 && H.chance(0.5)) riser(t, 32 * s16, V.crash * 0.25);   // suspense builds out of the quiet sections
           if (sec.pad) cur[1].forEach(m => strings(m - 12, t, 16 * s16 * 0.98, V.pad));
           if (sec.hits && b8 % sec.hits === 0) {                       // the big hit: low boom + crash + a brass chord
             L.kick(drums, t, V.boom, { f0: 90, f1: 38, decay: 0.9 });
@@ -3693,6 +3723,7 @@ const Tracks = (() => {
               if (sec.beat && (s === 0 || s === 3 || s === 8 || s === 11)) L.kick(drums, tt, V.kick * (s % 8 === 0 ? 1 : 0.7), { f0: 110, f1: 45, decay: 0.28 });
               if (sec.pulse) { const seq = [0, 12, c[2][1], 12, 0, 12, c[2][0] + 12, c[2][1]]; pulse(root + 24 + seq[s % 8], tt, V.pulse * (s % 4 === 0 ? 1 : 0.75)); }
               if (sec.beat && s % 2 === 0) L.bass(bassBus, root, tt, s16 * 1.5, V.bass * (s % 8 === 0 ? 1 : 0.8), { lp: 500 });
+              if (sec.beat && bar % 8 === 7 && s >= 8) L.kick(drums, tt, V.kick * (0.3 + (s - 8) * 0.06), { f0: 150, f1: 80, decay: 0.12 });   // a suspense drumroll into the next section
             } else if (song.groove === 'rush') {                          // upbeat quiz show: four-on-the-floor, claps, 16th hats, octave bass, stabs + sparkle
               const k0 = lift + (song.shift || 0), R0 = root + k0;
               if (s % 4 === 0) L.kick(drums, tt, V.kick, { f0: 150, f1: 50, decay: 0.26 });
@@ -3823,16 +3854,44 @@ const Tracks = (() => {
           g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(level, t + 2.5); g.gain.setValueAtTime(level, t + dur - 1); g.gain.linearRampToValueAtTime(0, t + dur + 2);
           [o, o2].forEach(x => { x.start(t); x.stop(t + dur + 2.2); }); o.onended = () => [o, o2, g2, g].forEach(n => n.disconnect());
         }
+        function thump(t, level) {                                       // a soft, distant engine heartbeat
+          const o = L.osc('sine', 78), g = L.gain(0);
+          o.frequency.setValueAtTime(78, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.18);
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(level, t + 0.008); g.gain.setTargetAtTime(0, t + 0.03, 0.12);
+          L.chain(o, g, out); o.start(t); o.stop(t + 0.8); o.onended = () => [o, g].forEach(n => n.disconnect());
+        }
+        function tick(t, level) {                                        // a quiet telemetry tick
+          const src = ctx.createBufferSource(); src.buffer = L.noise('white', 4);
+          const h = L.filter('highpass', 8500, 0.8), g = L.gain(0);
+          g.gain.setValueAtTime(level, t); g.gain.setTargetAtTime(0, t, 0.012);
+          L.chain(src, h, g, out); g.connect(bSend); src.start(t, Math.random() * 3); src.stop(t + 0.1);
+          src.onended = () => [src, h, g].forEach(n => n.disconnect());
+        }
         function pulse(midi, t, level) {
           const o = L.osc('triangle', L.mtof(midi)), g = L.gain(0);
           g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(level, t + 0.01); g.gain.setTargetAtTime(0, t + 0.02, 0.12);
           L.chain(o, g, pulseBus); o.start(t); o.stop(t + 0.7); o.onended = () => [o, g].forEach(n => n.disconnect());
         }
-        const prog = song.prog, barsPer = song.barsPerChord;
+        let prog = song.prog;
+        const barsPer = song.barsPerChord, SEC = barsPer * prog.length;      // a section = one pass through the chords (8 bars)
         let cur = song.chords[prog[0]];
+        // sections: the pulse pattern, a heartbeat, and a slow melody change from section to section
+        let pmode = song.pulseModes[0], beat = false, melody = false;
+        const history = [];
         function onBar(bar, t) {
+          if (bar % SEC === 0 && bar > 0) {
+            prog = song.progB && H.chance(0.4) ? song.progB : song.prog;
+            pmode = H.pick(song.pulseModes.filter(m => m !== pmode));
+            beat = pmode !== 'off' && H.chance(song.beatChance);
+            melody = H.chance(melody ? 0.35 : 0.6);
+          }
           const slot = Math.floor(bar / barsPer) % prog.length;
           cur = song.chords[prog[slot]];
+          if (melody && bar % 2 === 0) {                                 // two or three long, ringing notes over two bars
+            const sc = H.fit(song.melody, cur[1].map(n => n + 12));
+            const pos = H.pick([[0, 8], [0, 12, 20], [4, 16], [0, 10, 24]]), notes = H.phrase(sc, pos.length, Math.min(sc.length - 1, 1 + Math.floor(R() * 3)), history);
+            notes.forEach((m, k) => L.mallet(bellBus, song.melodyVoice, m, t + pos[k] * s16 + (R() - 0.5) * 0.02, H.rr(0.5, 0.62), { level: V.mel, tau: song.melodyTau }));
+          }
           if (bar % barsPer === 0) {
             const dur = barsPer * 16 * s16;
             cur[1].forEach(m => pad(m, t, dur, V.pad));
@@ -3848,8 +3907,18 @@ const Tracks = (() => {
           step(i, t) {
             const bar = Math.floor(i / 16), s = i % 16;
             if (s === 0) onBar(bar, t);
-            if (song.pulse && s % 2 === 0) { const tones = [...cur[1], ...cur[1].map(n => n + 12)]; pulse(tones[(i / 2 | 0) % tones.length] + 12, t, V.pulse * (s % 8 === 0 ? 1 : 0.7)); }
-            if (s % 4 === 0 && H.chance(song.bells)) L.mallet(bellBus, 'glass', H.pick(cur[1]) + 24, t, V.bell);
+            if (pmode !== 'off' && s % 2 === 0) {                          // the pulse, in this section's pattern
+              const tones = [...cur[1], ...cur[1].map(n => n + 12)], k = i / 2 | 0;
+              let n = null;
+              if (pmode === 'up') n = tones[k % tones.length];
+              else if (pmode === 'updown') { const seq = [...tones, ...tones.slice(1, -1).reverse()]; n = seq[k % seq.length]; }
+              else if (pmode === 'pairs') n = k % 2 ? tones[2 + (k >> 1) % 2] : tones[0];
+              else if (pmode === 'sparse') n = s % 4 === 0 || s === 6 || s === 14 ? tones[(k * 3) % tones.length] : null;
+              else if (pmode === 'slow') n = s % 8 === 0 ? tones[(k >> 2) % tones.length] : null;
+              if (n != null) pulse(n + 12, t, V.pulse * (s % 8 === 0 ? 1 : 0.7));
+            }
+            if (beat) { if (s % song.beatEvery === 0) thump(t, V.thump); if (song.ticks && s % 4 === 2) tick(t, V.tick * (s === 14 ? 1 : 0.7)); }
+            if (s % 4 === 0 && H.chance(melody ? song.bells * 0.4 : song.bells)) L.mallet(bellBus, 'glass', H.pick(cur[1]) + 24, t, V.bell);
           },
           dispose(t) { S.stop(t); setTimeout(() => S.disconnect(), 12000); },
         };
@@ -3857,14 +3926,18 @@ const Tracks = (() => {
     };
   }
   const [deepspace, orbit] = [
-    { id: 'deepspace', name: 'Deep Space', bpm: 60, tonic: 62, trim: 0.86, barsPerChord: 2, pulse: false, bells: 0.14,
+    { id: 'deepspace', name: 'Deep Space', bpm: 60, tonic: 62, trim: 0.86, barsPerChord: 2, bells: 0.14,
       chords: { Dm9: [38, [53, 57, 60, 64]], Bbmaj7: [34, [50, 53, 57, 62]], Fadd9: [41, [53, 55, 57, 60]], Csus2: [36, [52, 55, 60, 62]] },
-      prog: ['Dm9', 'Bbmaj7', 'Fadd9', 'Csus2'],
-      levels: { pad: 0.11, drone: 0.1, air: 0.09, bell: 0.75, pulse: 0 } },     // soft chimes
-    { id: 'orbit', name: 'Orbit', bpm: 84, tonic: 64, trim: 0.93, barsPerChord: 2, pulse: true, bells: 0.1,
+      prog: ['Dm9', 'Bbmaj7', 'Fadd9', 'Csus2'], progB: ['Dm9', 'Fadd9', 'Bbmaj7', 'Csus2'],
+      pulseModes: ['off', 'off', 'slow', 'sparse'], beatChance: 0.35, beatEvery: 16, ticks: false,   // mostly still; some sections get a slow pulse and a very slow heartbeat
+      melody: [74, 76, 77, 79, 81, 84, 86], melodyVoice: 'bell', melodyTau: 1.1,
+      levels: { pad: 0.11, drone: 0.1, air: 0.09, bell: 0.75, pulse: 0.06, thump: 0.12, tick: 0, mel: 0.08 } },     // soft chimes
+    { id: 'orbit', name: 'Orbit', bpm: 84, tonic: 64, trim: 0.93, barsPerChord: 2, bells: 0.1,
       chords: { Em9: [40, [55, 59, 62, 66]], Cmaj7: [36, [55, 59, 60, 64]], G6: [43, [55, 59, 62, 64]], Dsus: [38, [54, 57, 62, 64]] },
-      prog: ['Em9', 'Cmaj7', 'G6', 'Dsus'],
-      levels: { pad: 0.1, drone: 0.09, air: 0.08, bell: 0.675, pulse: 0.09 } },   // soft chimes
+      prog: ['Em9', 'Cmaj7', 'G6', 'Dsus'], progB: ['Em9', 'G6', 'Cmaj7', 'Dsus'],
+      pulseModes: ['up', 'up', 'updown', 'pairs', 'sparse', 'off'], beatChance: 0.5, beatEvery: 8, ticks: true,   // the pulse changes pattern each section; some sections add a heartbeat
+      melody: [71, 74, 76, 78, 79, 83, 86, 88], melodyVoice: 'glass', melodyTau: 1,
+      levels: { pad: 0.1, drone: 0.09, air: 0.08, bell: 0.675, pulse: 0.09, thump: 0.14, tick: 0.022, mel: 0.1 } },   // soft chimes
   ].map(makeAmbientTrack);
 
   const list = [lofi, offbeat, airy, upbeat, arcade, quest, bounce, nightdrive, neonrun, horizon, spotlight, lightning, deepspace, orbit];
