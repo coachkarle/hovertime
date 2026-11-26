@@ -421,23 +421,25 @@ body.pip .music-menu.open {
 .card-title:hover .chev, .card-title[aria-expanded="true"] .chev { opacity: 1; }
 .card-title[aria-expanded="true"] .chev { transform: rotate(180deg); }
 .card.editing .chev { display: none; }
-.card.editing .card-title { cursor: default; }
+.card.editing .card-title { display: none; }                    /* the title box below is the title while editing */
+.card.editing .card-head { justify-content: flex-end; }
 .card-editbtn { flex: none; height: 28px; padding: 0 10px; }
 .card-editbtn[hidden] { display: none; }
 .card .btn.ic { width: 28px; height: 28px; padding: 0; display: inline-grid; place-items: center; flex: none; }
 .card .btn.ic svg { width: 15px; height: 15px; }
 .card-body { display: flex; flex-direction: column; min-height: 0; font-size: var(--cf); }
-.card-body[hidden], .card-steps[hidden], .card-back[hidden], .card-pick[hidden], .card-edit[hidden] { display: none; }
-.card-steps { margin: 6px 6px 0 0; padding: 0; list-style: none; counter-reset: st; font-weight: 600; line-height: 1.3; }
-.card-steps li { display: flex; gap: .45em; padding: 1px 6px; margin-left: -6px; border-radius: 6px; cursor: pointer; counter-increment: st; }
-.card-steps li::before { content: counter(st) "."; flex: none; min-width: 1.1em; font-variant-numeric: tabular-nums; }   /* drawn numbers: they follow the highlight's colors */
-.card-steps.single li::before { display: none; }
-.card-steps li + li { margin-top: .35em; }
-.card-steps li.on { background: var(--accent); color: var(--on-accent); }
+.card-body[hidden], .card-text[hidden], .card-back[hidden], .card-pick[hidden], .card-edit[hidden] { display: none; }
+.card-text { margin: 6px 6px 0 0; font-weight: 600; line-height: 1.3; cursor: text; overflow-wrap: anywhere; }
+.card-text:empty::before { content: "Click to type…"; opacity: .7; font-style: italic; }
+.card-text .ln { display: flex; gap: .45em; }
+.card-text .ln + .ln { margin-top: .35em; }
+.card-text .ln.gap { height: .5em; }
+.card-text .mk { flex: none; min-width: 1.1em; font-variant-numeric: tabular-nums; }
+.card-text .mk.bul { min-width: .55em; }
 .card-back { margin: 4px 6px 2px 0; }
 .card-back b { display: block; font-size: 2em; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .card-back span { display: block; margin-top: .2em; font-weight: 600; font-variant-numeric: tabular-nums; }
-.card-back + .card-steps { margin-top: .5em; }
+.card-back + .card-text { margin-top: .5em; }
 .card-pick { display: flex; flex-direction: column; gap: 2px; margin: 6px 6px 0 0; max-height: 280px; overflow-y: auto; }
 .pick-item {
   display: flex; align-items: baseline; gap: 10px; width: 100%; appearance: none; border: 0; background: none; color: inherit; cursor: pointer;
@@ -448,22 +450,14 @@ body.pip .music-menu.open {
 .pick-item:hover, .pick-item:focus-visible { background: var(--btn); color: var(--btn-ink); }
 .pick-item.new { font-weight: 800; }
 .pick-item[aria-current="true"] { box-shadow: inset 0 0 0 1px var(--chip-line); }
-.card-edit { display: flex; flex-direction: column; gap: 6px; margin: 6px 6px 0 0; }
-.edit-lbl { margin: 4px 0 0; font-size: 12px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; }
-.card-edit input { padding: 7px 9px; border: 1px solid var(--chip-line); border-radius: 8px; background: var(--panel); color: var(--ink); font: 600 15px/1.3 var(--font); min-width: 0; }
-.card-edit .edit-title { font-size: 17px; font-weight: 800; }
-.edit-steps { display: flex; flex-direction: column; gap: 5px; margin: 0; padding: 0; list-style: none; counter-reset: es; overflow-y: auto; }
-.edit-steps li { display: flex; align-items: center; gap: 6px; counter-increment: es; }
-.edit-steps li::before { content: counter(es) "."; flex: none; min-width: 1.3em; font-weight: 800; font-variant-numeric: tabular-nums; }
-.edit-steps input { flex: 1; }
-.edit-x { flex: none; width: 28px; height: 28px; appearance: none; border: 0; border-radius: 7px; background: none; color: inherit; font: 700 17px/1 var(--font); cursor: pointer; }
-.edit-x:hover, .edit-x:focus-visible { background: var(--btn); color: var(--btn-ink); }
-.edit-add { align-self: flex-start; appearance: none; border: 1px dashed var(--chip-line); border-radius: 8px; background: none; color: inherit; font: 700 14px/1 var(--font); padding: 7px 10px; cursor: pointer; }
-.edit-add:hover { background: var(--btn); color: var(--btn-ink); }
-.edit-add:disabled { display: none; }
-.edit-min { display: flex; align-items: center; gap: 8px; margin-top: 4px; font-size: 14px; font-weight: 700; }
-.edit-min input { width: 64px; text-align: center; }
-.card-edit-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; }
+.card-edit { display: flex; flex-direction: column; gap: 6px; margin: 4px 6px 0 0; min-height: 0; }
+.card-edit input, .card-edit textarea { border: 1px solid var(--chip-line); border-radius: 8px; background: var(--panel); color: var(--ink); min-width: 0; }
+.card-edit .edit-title { padding: 4px 8px; font: 800 max(17px, calc(var(--cf) * 1.15))/1.15 var(--font); }
+.card-edit .edit-text { padding: 6px 8px; font: 600 var(--cf)/1.3 var(--font); resize: vertical; min-height: 5.5em; }
+.card.fill .card-edit .edit-text { flex: 1 1 0; resize: none; min-height: 3em; }
+.edit-min { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; }
+.edit-min input { width: 54px; padding: 5px 4px; text-align: center; font: 700 14px/1 var(--font); }
+.card-edit-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; flex: none; }
 .edit-more { display: flex; flex-wrap: wrap; gap: 2px 10px; margin-left: auto; }
 .edit-link { appearance: none; border: 0; background: none; color: inherit; font: 600 13px/1.3 var(--font); text-decoration: underline; text-underline-offset: 2px; padding: 4px 0; cursor: pointer; }
 .edit-link[hidden] { display: none; }
@@ -473,7 +467,6 @@ body.pip .music-menu.open {
 .card.min { padding-bottom: 6px; }
 .card.fill { overflow: hidden; }                                       /* Float, the big panel, wide screens: the card fills its space */
 .card.fill .card-pick, .card.fill .card-edit { flex: 1 1 0; max-height: none; min-height: 0; }
-.card.fill .edit-steps { flex: 0 1 auto; min-height: 40px; }
 .panel.timer-min .clock-wrap, .panel.timer-min .controls, .panel.timer-min .mini-music, .panel.timer-min .turn-label, .panel.timer-min .prompt-strip { display: none !important; }
 .panel:not(.has-card) #btnTimerMin { display: none; }
 #btnCard[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
@@ -1555,7 +1548,7 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
 .facil-split:focus-visible { outline-offset: -2px; }
 #app.view-facil > .instructions { grid-column: 3; grid-row: 1; }
 html body #app.view-facil .instructions.pushed:not(.prompting) { background: transparent; box-shadow: none; padding: 0; border-radius: 0; }
-.instructions.pushed .card-pick, .instructions.pushed .card-edit { zoom: 1.45; }   /* choosing and editing read at a distance in the big panel too */
+.instructions.pushed .card-pick, .instructions.pushed .card-edit-foot { zoom: 1.45; }   /* choosing and editing read at a distance in the big panel too */
 .instructions.pushed:not(.prompting)::before { display: none; }
 .instructions.pushed #instrText, .instructions.pushed #instrImg, .instructions.pushed #btnClear { display: none !important; }
 .instr-body > .card { flex: 1; min-width: 0; margin: 0; }
@@ -1570,6 +1563,16 @@ html body #app.view-facil .instructions.pushed:not(.prompting) { background: tra
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock { font-size: min(8vw, 9vh); }
 html[data-theme="8bit"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock-wrap { padding: 18px 16px 14px; margin: 8px 0 4px; }
 html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min) .clock { width: 62%; margin-left: auto; font-size: min(62cqh, 11cqw) !important; }
+/* the page size grip: drag down to make the timer (and card) bigger on this page; Float and Full screen size themselves */
+.page-grip { display: none; }
+body:not(.pip) #app:not(.view-facil) .page-grip {
+  display: block; position: absolute; left: 50%; bottom: 3px; width: 64px; height: 14px; margin-left: -32px; z-index: 3;
+  cursor: ns-resize; touch-action: none; border-radius: 7px;
+}
+.page-grip::after { content: ""; position: absolute; left: 14px; right: 14px; top: 5px; height: 4px; border-radius: 2px; background: var(--soft); opacity: .45; transition: opacity .15s; }
+.page-grip:hover::after, .page-grip:focus-visible::after, .page-grip.drag::after { opacity: 1; }
+body:not(.pip) #app:not(.view-facil) .panel { zoom: var(--pz, 1); }
+html.touch .page-grip { display: none !important; }
 </style>
 </head>
 <body>
@@ -1590,7 +1593,7 @@ html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min)
         <li><b>Pick a vibe</b><span>Each vibe has its own look, music, and sounds.</span></li>
         <li class="guide-float"><b>Float over your slides</b><span>A small always-on-top window, even over full-screen slides. With music on, it can float by itself when you switch away (Chrome asks once). <kbd>–</kbd> shrinks it to an icon; <b>Dock</b> brings it back.</span><div class="guide-art" id="guideArt"></div></li>
         <li><b>The ⋯ menu</b><span><b>Pair up</b>: random partner prompts (shuffle for another). <b>Rotation</b>: equal turns with a chime.<span class="facil-only"> <b>Full screen</b>: the timer beside big directions or your card; drag the divider to resize.</span><span class="full-only"> <b>Full screen</b>: just the timer, big (turn your phone sideways).</span></span></li>
-        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too), edit it live, or write your own. <b>Break</b> shows when everyone’s back.</span></li>
+        <li><b>Card</b><span>Directions that stay on screen with the timer, even in Float. Pick a protocol (its time loads too), click its text to edit it, or jot a quick note. <b>Break</b> shows when everyone’s back.</span></li>
         <li><b>Set the time</b><span>Tap or click the digits and type <b>5</b>, <b>2:30</b>, or <b>90s</b>.<span class="keys-only"> Or press <kbd>1</kbd>–<kbd>9</kbd>.</span></span></li>
         <li><b>Make it yours</b><span>⚙ has common school colors, fonts, and palettes.</span></li>
       </ol>
@@ -1599,7 +1602,7 @@ html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min)
         <dt><kbd>Space</kbd></dt><dd>Start / pause</dd><dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>±1 minute</dd>
         <dt><kbd>R</kbd></dt><dd>Reset</dd><dt><kbd>M</kbd></dt><dd>Music on / off</dd>
         <dt><kbd>G</kbd></dt><dd>Pair up prompt</dd><dt><kbd>F</kbd></dt><dd>Full screen</dd>
-        <dt><kbd>C</kbd></dt><dd>Card on / off</dd><dt><kbd>N</kbd></dt><dd>Highlight the next step</dd>
+        <dt><kbd>C</kbd></dt><dd>Card on / off</dd>
         <dt><kbd>Esc</kbd></dt><dd>Hide the prompt</dd>
       </dl>
     </aside>
@@ -1692,23 +1695,20 @@ html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min)
       </div>
       <div class="card-body" id="cardBody">
         <div class="card-back" id="cardBack" role="status" hidden><b id="backAt"></b><span id="backLeft"></span></div>
-        <ol class="card-steps" id="cardSteps"></ol>
+        <div class="card-text" id="cardText" title="Click to edit"></div>
       </div>
       <div class="card-pick" id="cardPick" role="menu" aria-label="Cards" hidden></div>
       <div class="card-edit" id="cardEdit" hidden>
-        <label class="edit-lbl" for="editTitle">Title</label>
-        <input id="editTitle" class="edit-title" type="text" maxlength="80" placeholder="Card title" autocomplete="off">
-        <p class="edit-lbl" id="editStepsLbl">Steps</p>
-        <ol class="edit-steps" id="editSteps" aria-labelledby="editStepsLbl"></ol>
-        <button class="edit-add" id="btnEditAdd" type="button">+ Add a step</button>
-        <label class="edit-min">Time <input id="editMin" type="number" min="0" max="180" inputmode="numeric" placeholder="–"> min</label>
+        <input id="editTitle" class="edit-title" type="text" maxlength="80" placeholder="Title" aria-label="Title" autocomplete="off">
+        <textarea id="editText" class="edit-text" aria-label="Note" placeholder="Type anything: directions, a reminder, a question…"></textarea>
         <div class="card-edit-foot">
-          <button class="btn small primary" id="btnEditDone" type="button" title="Save (Ctrl+Enter)">Save</button>
+          <button class="btn small primary" id="btnEditDone" type="button" title="Save (Ctrl+Enter, or click outside the card)">Save</button>
           <button class="btn small" id="btnEditCancel" type="button" title="Cancel (Esc)">Cancel</button>
+          <label class="edit-min">Timer <input id="editMin" type="number" min="0" max="180" inputmode="numeric" placeholder="–"> min</label>
           <span class="edit-more">
-            <button class="edit-link" id="btnEditNew" type="button">Save as a new card</button>
+            <button class="edit-link" id="btnEditNew" type="button">Save as new</button>
             <button class="edit-link" id="btnEditRestore" type="button" hidden>Restore original</button>
-            <button class="edit-link" id="btnEditDelete" type="button" hidden>Delete card</button>
+            <button class="edit-link" id="btnEditDelete" type="button" hidden>Delete</button>
           </span>
         </div>
       </div>
@@ -1758,6 +1758,7 @@ html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min)
     </div>
 
     <div class="music-menu" id="musicMenu" role="menu" aria-label="Music"></div>
+    <div class="page-grip" id="pageGrip" role="slider" tabindex="0" aria-label="Size of the timer on this page" aria-valuemin="100" aria-valuemax="250" aria-valuenow="100" title="Drag down to make everything bigger (double-click to reset)"></div>
     <div class="mini-music">
       <button class="btn small" id="btnMusicMini" type="button" title="Choose music" aria-haspopup="menu" aria-expanded="false" aria-controls="musicMenu">♪ Lo-fi</button>
       <input type="range" id="volumeMini" min="0" max="100" value="75" aria-label="Volume">
@@ -1780,7 +1781,7 @@ html[data-theme="scifi"] body.pip .panel.has-card:not(.card-min):not(.timer-min)
 
     <p class="hints" id="hints" hidden>
       <kbd>Space</kbd> start/pause · <kbd>↑</kbd><kbd>↓</kbd> ±1 min · <kbd>1</kbd>–<kbd>9</kbd> minutes (<kbd>0</kbd> = 10) ·
-      <kbd>R</kbd> reset · <kbd>M</kbd> music · <kbd>F</kbd> full screen · <kbd>G</kbd> partner prompt · <kbd>C</kbd> card · <kbd>N</kbd> next step · <kbd>Esc</kbd> hide prompt · paste a screenshot
+      <kbd>R</kbd> reset · <kbd>M</kbd> music · <kbd>F</kbd> full screen · <kbd>G</kbd> partner prompt · <kbd>C</kbd> card · <kbd>Esc</kbd> hide prompt · paste a screenshot
     </p>
   </section>
 
@@ -3744,7 +3745,8 @@ const AudioEngine = (() => {
   function createMasterChain(ctx) {
     const musicIn = ctx.createGain(), musicFade = ctx.createGain(), cueIn = ctx.createGain(), sum = ctx.createGain();
     musicIn.gain.value = 0.5;             // headroom for the tracks
-    cueIn.gain.value = 1;
+    cueIn.gain.value = 1.6;               // chimes sit clearly above the music
+    const duck = ctx.createGain();        // dips the music under each chime and turn switch
     const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 32; hp.Q.value = 0.6;
     const lim = ctx.createDynamicsCompressor();
     lim.threshold.value = -6; lim.knee.value = 3; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.2;
@@ -3756,9 +3758,9 @@ const AudioEngine = (() => {
     }
     clip.curve = c;
     const volume = ctx.createGain();
-    musicIn.connect(musicFade); musicFade.connect(sum); cueIn.connect(sum);
+    musicIn.connect(duck); duck.connect(musicFade); musicFade.connect(sum); cueIn.connect(sum);
     sum.connect(hp); hp.connect(lim); lim.connect(clip); clip.connect(volume); volume.connect(ctx.destination);
-    return { musicIn, musicFade, cueIn, volume, limiter: lim };
+    return { musicIn, musicFade, cueIn, duck, volume, limiter: lim };
   }
 
   /* ---------- cue sounds (return the source nodes so they can be cancelled) ---------- */
@@ -4058,6 +4060,10 @@ const AudioEngine = (() => {
     switchTimes = plan ? plan.switches.map(ms => end - ms / 1000) : [];
     const switchCue = cueSet().switch;
     for (const t of switchTimes) add(t, tt => switchCue(L, chain.cueIn, tt, tonic()), 0.01, 'switch');
+    const dg = chain.duck.gain;                                  // music dips about 8 dB under the chime and each switch, then comes back
+    if (dg.cancelAndHoldAtTime) dg.cancelAndHoldAtTime(now); else dg.cancelScheduledValues(now);
+    dg.setTargetAtTime(1, now, 0.05);
+    for (const t of [...(plan ? [] : [end - 60]), ...switchTimes]) if (t > now + 0.05) { dg.setTargetAtTime(0.4, t - 0.04, 0.025); dg.setTargetAtTime(1, t + 1.1, 0.35); }
     const g = chain.musicFade.gain;
     g.setTargetAtTime(musicWanted ? 1 : 0, now, 0.12);
     if (end > now) g.setTargetAtTime(0, end, 0.35);
@@ -4619,7 +4625,7 @@ const Themes = (() => {
      ========================================================= */
   /** match a canvas's backing store to its CSS size (null while it's hidden) */
   function fitCanvas(cv, win) {
-    const W = cv.clientWidth, H = cv.clientHeight, dpr = win.devicePixelRatio || 1;
+    const W = cv.clientWidth, H = cv.clientHeight, dpr = (win.devicePixelRatio || 1) * (cv.currentCSSZoom || 1);   // currentCSSZoom: the page size grip
     if (!W || !H) return null;
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     return { W, H, dpr };
@@ -6635,7 +6641,6 @@ const UI = (() => {
     if (k === 'f' || k === 'F') { toggleFacil(); return; }
     if (k === 'g' || k === 'G') { act.prompt(); return; }
     if (k === 'c' || k === 'C') { setCard(!cardOn); return; }
-    if (k === 'n' || k === 'N') { nextStep(); return; }
     if (k === 'Escape' && (menuOpen() || musicMenuOpen())) { setMenu(false); setMusicMenu(false); return; }
     if (k === 'Escape' && document.body.classList.contains('full')) { exitFull(); return; }
     if (k === 'Escape' && promptActive) { dismissPrompt(); return; }
@@ -6792,24 +6797,25 @@ const UI = (() => {
   window.addEventListener('resize', fitPrompt);
 
   /* ---------- Card: directions that float with the timer. Built-in protocols (editable), your own cards, and Break ---------- */
+  const num = a => a.map((x, i) => `${i + 1}. ${x}`).join('\n');
   const PROTOCOLS = [
-    { id: 'break', kind: 'break', title: 'Break', min: 10, steps: [] },
-    { id: 'mip', title: 'Most Important Point', min: 5, steps: ['Think back on what we just covered.', 'Write the single most important point in one sentence.', 'Share it with a partner and say why.'] },
-    { id: '321', title: '3-2-1', min: 5, steps: ['3 key takeaways', '2 questions you still have', '1 thing you’ll try next'] },
-    { id: 'wsn', title: 'What? So What? Now What?', min: 8, steps: ['What? What happened, or what did you notice?', 'So what? Why does it matter?', 'Now what? What will you do next?'] },
-    { id: 'shift', title: 'I Used to Think… Now I Think…', min: 5, steps: ['Write: “I used to think…”', 'Write: “Now I think…”', 'Share what changed your thinking.'] },
-    { id: 'cec', title: 'Connect, Extend, Challenge', min: 6, steps: ['Connect: How does this link to what you already know?', 'Extend: What pushed your thinking further?', 'Challenge: What still puzzles or concerns you?'] },
-    { id: 'headline', title: 'Headline', min: 4, steps: ['Sum up the big idea as a headline, 10 words max.', 'Share headlines at your table.', 'Choose one to share with the room.'] },
-    { id: 'lastword', title: 'Save the Last Word', min: 15, steps: ['Pick a line from the text that stands out to you.', 'One person reads theirs aloud, with no comment.', 'Each other person responds briefly.', 'The reader gets the last word. Then rotate.'] },
+    { id: 'break', kind: 'break', title: 'Break', min: 10, text: '' },
+    { id: 'mip', title: 'Most Important Point', min: 5, text: num(['Think back on what we just covered.', 'Write the single most important point in one sentence.', 'Share it with a partner and say why.']) },
+    { id: '321', title: '3-2-1', min: 5, text: '3 key takeaways\n2 questions you still have\n1 thing you’ll try next' },
+    { id: 'wsn', title: 'What? So What? Now What?', min: 8, text: 'What? What happened, or what did you notice?\nSo what? Why does it matter?\nNow what? What will you do next?' },
+    { id: 'shift', title: 'I Used to Think… Now I Think…', min: 5, text: num(['Write: “I used to think…”', 'Write: “Now I think…”', 'Share what changed your thinking.']) },
+    { id: 'cec', title: 'Connect, Extend, Challenge', min: 6, text: 'Connect: How does this link to what you already know?\nExtend: What pushed your thinking further?\nChallenge: What still puzzles or concerns you?' },
+    { id: 'headline', title: 'Headline', min: 4, text: num(['Sum up the big idea as a headline, 10 words max.', 'Share headlines at your table.', 'Choose one to share with the room.']) },
+    { id: 'lastword', title: 'Save the Last Word', min: 15, text: num(['Pick a line from the text that stands out to you.', 'One person reads theirs aloud, with no comment.', 'Each other person responds briefly.', 'The reader gets the last word. Then rotate.']) },
   ];
-  Object.assign(el, { card: $('card'), cardBtn: $('btnCard'), cardTitle: $('cardTitle'), cardTime: $('cardTime'), cardBody: $('cardBody'), cardSteps: $('cardSteps'),
+  Object.assign(el, { card: $('card'), cardBtn: $('btnCard'), cardTitle: $('cardTitle'), cardTime: $('cardTime'), cardBody: $('cardBody'), cardText: $('cardText'),
     cardBack: $('cardBack'), backAt: $('backAt'), backLeft: $('backLeft'), cardPick: $('cardPick'), cardEdit: $('cardEdit'),
-    cardTitleText: $('cardTitleText'), editAdd: $('btnEditAdd'), editBtn: $('btnCardEdit'), cardMinBtn: $('btnCardMin'), timerMinBtn: $('btnTimerMin'),
+    cardTitleText: $('cardTitleText'), editBtn: $('btnCardEdit'), cardMinBtn: $('btnCardMin'), timerMinBtn: $('btnTimerMin'),
     pushBtn: $('btnCardPush'), fbTimer: $('fbTimer'), fbCard: $('fbCard'), fbPair: $('fbPair'),
-    editTitle: $('editTitle'), editSteps: $('editSteps'), editMin: $('editMin'), editRestore: $('btnEditRestore'), editDelete: $('btnEditDelete') });
+    editTitle: $('editTitle'), editText: $('editText'), editMin: $('editMin'), editRestore: $('btnEditRestore'), editDelete: $('btnEditDelete') });
   const CARDS_KEY = 'ht-cards';
-  const cleanCard = c => ({ title: String(c.title || '').trim().slice(0, 80) || 'Untitled', min: Math.max(0, Math.min(180, Math.round(+c.min || 0))),
-    steps: (Array.isArray(c.steps) ? c.steps : []).map(s => String(s).trim().slice(0, 200)).filter(Boolean).slice(0, 8) });
+  const cleanCard = c => ({ title: String(c.title || '').trim().slice(0, 80) || 'Note', min: Math.max(0, Math.min(180, Math.round(+c.min || 0))),
+    text: (typeof c.text === 'string' ? c.text : Array.isArray(c.steps) ? num(c.steps.map(String)) : '').replace(/\s+$/, '').slice(0, 1500) });   // older saves kept a list of steps
   const cardStore = { edits: {}, custom: [] };                     // your changes to built-ins + your own cards; only ever saved in this browser
   try {
     const raw = JSON.parse(localStorage.getItem(CARDS_KEY) || 'null');
@@ -6824,7 +6830,7 @@ const UI = (() => {
     return c ? { ...c, builtin: false } : null;
   }
   const allCards = () => [...PROTOCOLS.map(p => cardById(p.id)), ...cardStore.custom.map(c => cardById(c.id))];
-  let cardOn = false, cardMin = false, timerMin = false, cardMode = 'view', cardId = null, cur = null, stepOn = -1, lastBack = '';
+  let cardOn = false, cardMin = false, timerMin = false, cardMode = 'view', cardId = null, cur = null, lastBack = '';
   const clockFmt = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit' });
   const wallTime = ms => clockFmt.formatToParts(new Date(ms)).filter(p => p.type !== 'dayPeriod').map(p => p.value).join('').trim();   // "10:42"
 
@@ -6864,17 +6870,20 @@ const UI = (() => {
     el.cardEdit.hidden = cardMode !== 'edit';
     if (cur && cardMode === 'view') {
       el.cardBack.hidden = cur.kind !== 'break';
-      el.cardSteps.hidden = !cur.steps.length;
-      el.cardSteps.classList.toggle('single', cur.steps.length === 1);
-      el.cardSteps.replaceChildren(...cur.steps.map((s, i) => {
-        const li = el.cardSteps.ownerDocument.createElement('li');
-        li.textContent = s; if (i === stepOn) { li.className = 'on'; li.setAttribute('aria-current', 'step'); }
-        li.addEventListener('click', () => { stepOn = stepOn === i ? -1 : i; renderCard(); });
-        return li;
+      el.cardText.hidden = cur.kind === 'break' && !cur.text;
+      const d = el.cardText.ownerDocument;
+      el.cardText.replaceChildren(...(cur.text ? cur.text.split('\n') : []).map(line => {
+        const div = d.createElement('div'); div.className = 'ln';
+        const m = line.match(/^\s*(\d+[.)]|[-•*])\s+(.*)$/);
+        if (!line.trim()) div.className = 'ln gap';
+        else if (m) { const mk = d.createElement('span'), tx = d.createElement('span'); const bul = /^[-•*]$/.test(m[1]); mk.className = bul ? 'mk bul' : 'mk'; mk.textContent = bul ? '•' : m[1]; tx.textContent = m[2]; div.append(mk, tx); }
+        else div.textContent = line;
+        return div;
       }));
     }
     if (cardMode === 'pick') renderPick();
     lastBack = ''; cardTick(timer.remaining(), TimerCore.format(timer.remaining()));
+    if (typeof applyZoom === 'function' && pageZoom > 1) requestAnimationFrame(applyZoom);
     requestAnimationFrame(fitCard);
   }
   function renderPick() {
@@ -6891,7 +6900,7 @@ const UI = (() => {
       ...cards.filter(c => c.builtin && c.kind === 'break').map(entry),
       head('Protocols'), ...cards.filter(c => c.builtin && c.kind !== 'break').map(entry),
       ...(mine.length ? [head('Your cards'), ...mine.map(entry)] : []),
-      item('+ Make your own card', '', newCard, 'new'));
+      item('+ New note', '', newCard, 'new'));
   }
   /** Float, the big panel, and wide screens: the card fills its space and its text takes the largest size that fits */
   const wideCard = matchMedia('(min-width: 900px)');
@@ -6905,6 +6914,7 @@ const UI = (() => {
   function fitCard() {
     const c = el.card, max = cardFill();
     c.classList.toggle('fill', !!max && !cardMin);
+    if (cardMode === 'edit' && max) return;                            // editing keeps the size you were reading at
     c.style.removeProperty('--cf');
     if (!max || cardMin || cardMode !== 'view' || !c.offsetHeight) return;
     let lo = 12, hi = max;
@@ -6938,7 +6948,7 @@ const UI = (() => {
   }
   function loadCard(id) {
     const c = cardById(id); if (!c) return;
-    cardId = id; stepOn = -1; cardMode = 'view'; cardMin = false;
+    cardId = id; cardMode = 'view'; cardMin = false;
     if (c.min > 0) { if (timer.running) toast('Card loaded. The timer kept running.'); else { lastText = ''; timer.load(c.min * 60000); } }
     window.htCount && htCount('card/' + (c.builtin ? c.id : 'custom'));    // which protocols get used (the name only, never your text)
     renderCard();
@@ -6947,34 +6957,19 @@ const UI = (() => {
   function startEdit(isNew = false) {
     if (!cur) return;
     editingNew = isNew;
-    el.editTitle.value = cur.title; el.editMin.value = cur.min || '';
-    el.editSteps.replaceChildren(); (cur.steps.length ? cur.steps : ['']).forEach(t => addStepRow(t));
+    el.editTitle.value = cur.title; el.editMin.value = cur.min || ''; el.editText.value = cur.text;
     el.editRestore.hidden = !(cur.builtin && cur.edited); el.editDelete.hidden = cur.builtin; $('btnEditNew').hidden = isNew;
     cardMode = 'edit'; cardMin = false; renderCard();
-    if (isNew) { el.editTitle.focus(); el.editTitle.select(); } else { const f = el.editSteps.querySelector('input'); f.focus(); f.setSelectionRange(f.value.length, f.value.length); }
+    el.editText.focus(); el.editText.setSelectionRange(el.editText.value.length, el.editText.value.length);
   }
-  const formCard = () => cleanCard({ title: el.editTitle.value, min: el.editMin.value, steps: [...el.editSteps.querySelectorAll('input')].map(i => i.value) });
-  /** one row per step: Enter adds the next step, Backspace on an empty step removes it, × removes it */
-  function addStepRow(text = '', after = null) {
-    const d = el.editSteps.ownerDocument, li = d.createElement('li'), inp = d.createElement('input'), x = d.createElement('button');
-    inp.type = 'text'; inp.maxLength = 200; inp.value = text; inp.placeholder = 'Type a step'; inp.autocomplete = 'off';
-    x.type = 'button'; x.className = 'edit-x'; x.textContent = '×';
-    li.append(inp, x);
-    if (after) after.after(li); else el.editSteps.appendChild(li);
-    x.addEventListener('click', () => removeStepRow(li));
-    inp.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) { e.preventDefault(); e.stopPropagation(); if (stepRows().length < 8) addStepRow('', li).querySelector('input').focus(); }
-      else if (e.key === 'Backspace' && !inp.value && stepRows().length > 1) { e.preventDefault(); const prev = li.previousElementSibling || li.nextElementSibling; removeStepRow(li); const pi = prev.querySelector('input'); pi.focus(); pi.setSelectionRange(pi.value.length, pi.value.length); }
-    });
-    syncStepRows(); return li;
-  }
-  const stepRows = () => [...el.editSteps.children];
-  function removeStepRow(li) { if (stepRows().length > 1) li.remove(); else li.querySelector('input').value = ''; syncStepRows(); }
-  function syncStepRows() {
-    stepRows().forEach((li, i) => { li.querySelector('input').setAttribute('aria-label', `Step ${i + 1}`); li.querySelector('.edit-x').setAttribute('aria-label', `Remove step ${i + 1}`); });
-    el.editAdd.disabled = stepRows().length >= 8;
-  }
-  el.editAdd.addEventListener('click', () => { const rows = stepRows(); addStepRow('', rows[rows.length - 1] || null).querySelector('input').focus(); });
+  const formCard = () => cleanCard({ title: el.editTitle.value, min: el.editMin.value, text: el.editText.value });
+  // a sticky note saves itself when you click away from it
+  el.cardEdit.addEventListener('focusout', () => setTimeout(() => {
+    if (cardMode === 'edit' && !el.cardEdit.contains(el.cardEdit.ownerDocument.activeElement)) saveEdit();
+  }, 0));
+  el.cardText.addEventListener('click', () => { if (cardMode === 'view' && cur) startEdit(); });
+  function saveIfOutside(e) { if (cardMode === 'edit' && !el.card.contains(e.target)) saveEdit(); }   // a click anywhere else saves the note
+  document.addEventListener('pointerdown', saveIfOutside, true);
   function applyMinutes(min, before) { if (min > 0 && min !== before && !timer.running) { lastText = ''; timer.load(min * 60000); } }
   function saveEdit() {
     if (!cur) return;
@@ -6986,7 +6981,7 @@ const UI = (() => {
     const v = formCard(), id = 'c' + Date.now().toString(36), before = cur ? cur.min : 0;
     if (cur && !cur.builtin && v.title === cur.title) v.title += ' (copy)';
     cardStore.custom.push({ id, kind: cur && cur.kind === 'break' ? 'break' : undefined, ...v });
-    saveCards(); cardId = id; stepOn = -1; cardMode = 'view'; renderCard(); applyMinutes(v.min, before);
+    saveCards(); cardId = id; cardMode = 'view'; renderCard(); applyMinutes(v.min, before);
   }
   function cancelEdit() {
     if (editingNew && cur && !cur.builtin) { cardStore.custom = cardStore.custom.filter(x => x.id !== cur.id); saveCards(); cardId = null; cardMode = 'pick'; }
@@ -6995,8 +6990,8 @@ const UI = (() => {
   }
   function newCard() {
     const id = 'c' + Date.now().toString(36);
-    cardStore.custom.push({ id, title: 'New card', min: 5, steps: [] }); saveCards();
-    cardId = id; stepOn = -1; cur = cardById(id); startEdit(true);
+    cardStore.custom.push({ id, title: 'Note', min: 0, text: '' }); saveCards();
+    cardId = id; cur = cardById(id); startEdit(true);
   }
   el.cardBtn.addEventListener('click', () => setCard(!cardOn));
   $('btnCardClose').addEventListener('click', () => setCard(false));
@@ -7014,12 +7009,35 @@ const UI = (() => {
   el.cardEdit.addEventListener('keydown', e => {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancelEdit(); }
     else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); saveEdit(); }
-    else if (e.key === 'Enter' && e.target === el.editTitle) { e.preventDefault(); el.editSteps.querySelector('input').focus(); }
+    else if (e.key === 'Enter' && e.target === el.editTitle) { e.preventDefault(); el.editText.focus(); }
     else if (e.key === 'Enter' && e.target === el.editMin) { e.preventDefault(); saveEdit(); }
   });
-  function nextStep() { if (cardOn && cur && cardMode === 'view' && cur.steps.length) { stepOn = (stepOn + 1) % (cur.steps.length + 1); if (stepOn === cur.steps.length) stepOn = -1; renderCard(); } }
   window.addEventListener('resize', fitCard);
   el.pushBtn.addEventListener('click', () => { pushPref = !cardPushed; renderCard(); });
+
+  /* page size: drag the grip under the timer down to make everything on this page bigger (remembered) */
+  const grip = $('pageGrip'), ZOOM_KEY = 'ht-zoom';
+  let pageZoom = 1;
+  try { const z = parseFloat(localStorage.getItem(ZOOM_KEY)); if (z >= 1 && z <= 2.5) pageZoom = z; } catch (e) {}
+  function applyZoom() {
+    const st = el.panel.style; st.setProperty('--pz', '1');
+    const base = el.panel.getBoundingClientRect(), roomW = (innerWidth - 32) / Math.max(1, base.width);
+    const z = Math.max(1, Math.min(pageZoom, roomW, 2.5));
+    st.setProperty('--pz', z.toFixed(3)); grip.setAttribute('aria-valuenow', String(Math.round(z * 100)));
+    theme().renderer.invalidate(); requestAnimationFrame(fitCard);
+  }
+  let gripFrom = null;
+  grip.addEventListener('pointerdown', e => { e.preventDefault(); grip.setPointerCapture(e.pointerId); grip.classList.add('drag'); gripFrom = { y: e.clientY, z: pageZoom, h: el.panel.getBoundingClientRect().height }; });
+  grip.addEventListener('pointermove', e => { if (!gripFrom) return; pageZoom = Math.max(1, Math.min(2.5, gripFrom.z * (1 + (e.clientY - gripFrom.y) / Math.max(200, gripFrom.h)))); applyZoom(); });
+  const endGrip = () => { if (!gripFrom) return; gripFrom = null; grip.classList.remove('drag'); pageZoom = parseFloat(el.panel.style.getPropertyValue('--pz')) || 1; try { localStorage.setItem(ZOOM_KEY, String(pageZoom)); } catch (e) {} };
+  grip.addEventListener('pointerup', endGrip); grip.addEventListener('pointercancel', endGrip);
+  grip.addEventListener('dblclick', () => { pageZoom = 1; try { localStorage.removeItem(ZOOM_KEY); } catch (e) {} applyZoom(); });
+  grip.addEventListener('keydown', e => {
+    const d = { ArrowDown: 0.1, ArrowRight: 0.1, ArrowUp: -0.1, ArrowLeft: -0.1 }[e.key]; if (!d) return;
+    e.preventDefault(); e.stopPropagation(); pageZoom = Math.max(1, Math.min(2.5, pageZoom + d)); applyZoom(); try { localStorage.setItem(ZOOM_KEY, String(pageZoom)); } catch (e2) {}
+  });
+  window.addEventListener('resize', () => requestAnimationFrame(applyZoom));
+  requestAnimationFrame(applyZoom);
 
   /* Your Float (wide screens): what you see beside it is what floats */
   function syncBuilder() {
@@ -7320,6 +7338,7 @@ const UI = (() => {
     pipWin.addEventListener('resize', fitCard);
     d.addEventListener('keydown', onKey);
     d.addEventListener('keyup', onKeyUp);
+    d.addEventListener('pointerdown', saveIfOutside, true);
     d.addEventListener('pointerdown', e => {
       AudioEngine.unlock();
       if (menuOpen() && !el.moreMenu.contains(e.target) && e.target !== el.more) setMenu(false);   // click outside closes ⋯
