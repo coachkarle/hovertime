@@ -96,7 +96,7 @@ button, input, textarea, select { font-family: inherit; }
 .panel {
   position: relative;
   width: 100%;
-  max-width: 440px;
+  max-width: 480px;                /* wide enough for any vibe's songs, ⋯ and Shuffle on one line */
   background: var(--panel);
   color: var(--ink);
   border-radius: 14px;
@@ -229,7 +229,7 @@ input[type=range] { flex: 1; accent-color: var(--soft); height: 20px; cursor: po
   box-shadow: 0 6px 24px rgba(0,0,0,.35); max-width: calc(100% - 32px); z-index: 10;
 }
 .pip-notice {
-  width: 100%; max-width: 440px; margin: 0 auto; text-align: center;
+  width: 100%; max-width: 480px; margin: 0 auto; text-align: center;
   background: var(--panel); border-radius: 14px; padding: 28px 18px;
   font-size: 16px; color: var(--soft);
 }
@@ -659,7 +659,7 @@ html[data-theme="8bit"] #instrText::placeholder { color: var(--g1); }
    Home page only: it sits outside #panel, so Float never shows it.
    ================================================================ */
 .home-bar {
-  position: relative; width: 100%; max-width: 440px; margin: 0 0 10px;
+  position: relative; width: 100%; max-width: 480px; margin: 0 0 10px;
   display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px;
 }
 .brand { display: flex; align-items: center; gap: 8px; margin-right: auto; min-width: 0; font-size: 16px; font-weight: 800; letter-spacing: .3px; color: var(--bg-ink); }
@@ -737,12 +737,12 @@ html[data-theme="rain"] .brand-tag { font-family: var(--rn-font); font-weight: 4
 #btnSettings svg { width: 18px; height: 18px; }
 #app.view-facil .home-bar { display: none; }
 /* the credit line: small and quiet, home page only (never in Float, the minimized icon, or Facilitate) */
-.site-foot { width: 100%; max-width: 440px; margin: 14px 0 4px; text-align: center; font-size: 12px; font-weight: 500; letter-spacing: .2px; color: var(--bg-ink); opacity: .78; }
+.site-foot { width: 100%; max-width: 480px; margin: 14px 0 4px; text-align: center; font-size: 12px; font-weight: 500; letter-spacing: .2px; color: var(--bg-ink); opacity: .78; }
 .site-foot a { color: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px; }
 .site-foot a:hover { opacity: 1; text-decoration-thickness: 2px; }
 #app.view-facil .site-foot { display: none; }
 /* "About HoverTime": a quiet collapsed FAQ under the credit line (the text is in the page for search engines either way) */
-.site-faq { width: 100%; max-width: 440px; margin: 0 0 16px; color: var(--bg-ink); font-size: 12px; letter-spacing: .2px; }
+.site-faq { width: 100%; max-width: 480px; margin: 0 0 16px; color: var(--bg-ink); font-size: 12px; letter-spacing: .2px; }
 .site-faq summary {
   width: max-content; margin: 0 auto; padding: 2px 4px; list-style: none; cursor: pointer;
   font-weight: 500; opacity: .72; text-decoration: underline; text-underline-offset: 2px; text-decoration-thickness: 1px;
@@ -804,9 +804,9 @@ html[data-theme="8bit"] .site-foot { font: 16px/1.2 var(--vt); color: #ffffff; }
 .chip .sw i { width: 10px; height: 10px; border-radius: 50%; margin-right: -3px; box-shadow: 0 0 0 1.5px var(--deep), inset 0 0 0 1px rgba(255,255,255,.4); }
 /* wide screens: settings dock beside the timer; the timer column slides left just enough to make room */
 @media (min-width: 860px) {
-  #app.settings-open:not(.view-facil) { padding-right: max(16px, calc(1230px - 100vw)); }   /* 440 timer + 22 gap + 340 settings + margins */
+  #app.settings-open:not(.view-facil) { padding-right: max(16px, calc(1270px - 100vw)); }   /* 480 timer + 22 gap + 340 settings + margins */
   .settings.open { top: 0; left: calc(100% + 22px); right: auto; }
-  #app.guide-open:not(.view-facil) { padding-left: max(16px, calc(1230px - 100vw)); }
+  #app.guide-open:not(.view-facil) { padding-left: max(16px, calc(1270px - 100vw)); }
 }
 /* the quick guide (How to use): a cheat sheet on the left, same visual language as settings */
 .guide { display: none; }
@@ -1534,22 +1534,22 @@ html:is([data-theme="sand"], [data-theme="synth"], [data-theme="sunrise"], [data
 .float-build .btn.primary { margin-top: 4px; }
 /* wide screens: the card sits beside the timer at Float-style size, instead of above it */
 @media (min-width: 900px) {
-  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) { max-width: 900px; display: grid; grid-template-columns: 404px minmax(0, 1fr); column-gap: 22px; align-content: start; }
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) { max-width: 940px; display: grid; grid-template-columns: 444px minmax(0, 1fr); column-gap: 22px; align-content: start; }
   body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > * { grid-column: 1; }
   body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .card { grid-column: 2; grid-row: 1 / span 20; contain: size; margin: 0; min-height: 300px; }
   body:not(.pip) #app:not(.view-facil) .panel.timer-min > .card { grid-column: 1 / -1; }
-  #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .home-bar { max-width: 900px; }
+  #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .home-bar { max-width: 940px; }
   #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .settings.open { top: calc(100% + 6px); left: auto; right: 0; }
   #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .guide.open { top: calc(100% + 6px); left: 0; right: auto; }
   #app.settings-open:not(.view-facil):has(> .panel.has-card:not(.card-min)), #app.guide-open:not(.view-facil):has(> .panel.has-card:not(.card-min)) { padding-left: 16px; padding-right: 16px; }
 }
 @media (min-width: 1200px) {   /* Your Float appears once a card is open */
-  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) { max-width: 1140px; grid-template-columns: 170px 404px minmax(0, 1fr); }
+  body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) { max-width: 1180px; grid-template-columns: 170px 444px minmax(0, 1fr); }
   body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > * { grid-column: 2; }
   body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .float-build { display: flex; grid-column: 1; grid-row: 1 / span 20; }
   body:not(.pip) #app:not(.view-facil) .panel.has-card:not(.card-min) > .card { grid-column: 3; }
   body:not(.pip) #app:not(.view-facil) .panel.timer-min > .card { grid-column: 2 / -1; }
-  #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .home-bar { max-width: 1140px; }
+  #app:not(.view-facil):has(> .panel.has-card:not(.card-min)) .home-bar { max-width: 1180px; }
 }
 
 /* ---------- Full screen (was Facilitate): drag the divider to resize; the card can go into the big panel ---------- */
